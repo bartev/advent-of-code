@@ -1,0 +1,9 @@
+#+title: Advent of Code
+#+author: Bartev
+#+date: 2024-01-27
+
+I'm basing the structure of this repo (=*.edn= files, etc) off of [[https://github.com/tschady/advent-of-code/tree/main][tschady's repo]].
+
+* Introduction
+
+My Clojure solutions to the [[https://adventofcode.com][Advent of Code]] challenge (to be reused over multiple years).
