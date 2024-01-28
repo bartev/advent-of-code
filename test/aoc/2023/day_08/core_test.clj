@@ -1,6 +1,6 @@
-(ns aoc.{{year}}.day-{{day}}.core-test
+(ns aoc.2023.day-08.core-test
     (:require
-     [aoc.{{year}}.day-{{day}}.core :as sut]
+     [aoc.2023.day-08.core :as sut]
      [clojure.test :refer :all]))
 
 (deftest challenges

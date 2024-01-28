@@ -1,13 +1,19 @@
 {:paths ["resources" "script"]
- :tasks {badges   {:doc  "Updates README badges with latest puzzle completion stats."
-                   :task (exec 'tasks/update-badges)}
+ :tasks {
+         ;; badges   {:doc  "Updates README badges with latest puzzle completion stats."
+         ;;           :task (exec 'tasks/update-badges)}
          clean    {:doc  "Clean all temp build files"
                    :task (shell "rm -rf .cpcache target")}
-         doc      {:doc  "Generate blog from source for input year"
-                   :task (clojure "-M:doc" *command-line-args*)}
+         ;; doc      {:doc  "Generate blog from source for input year"
+         ;;           :task (clojure "-M:doc" *command-line-args*)}
+         ;; download {:doc  "Download problem input for -y YYYY -d D, default today."
+         ;;           :task (exec 'tasks/download-input)}
          download {:doc  "Download problem input for -y YYYY -d D, default today."
-                   :task (exec 'tasks/download-input)}
-         go       {:doc  "Quickstart: download data, open REPL/editor to problem template, open browser."
+                   :task (exec 'tasks/download-input-curl)}
+         fetch    {:doc  "Download problem input for -y YYYY -d D, default today."
+                   :task (exec 'tasks/fetch-input)}
+         ;; go
+         go       {:doc  "Quickstart: Download data + create stubs + opens websites for the day."
                    :depends [download template]
                    :task (exec 'tasks/open-apps)}
          lint     {:doc  "Run clj-kondo over all src/test."

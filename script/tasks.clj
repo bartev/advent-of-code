@@ -1,10 +1,11 @@
 (ns tasks
   (:require
    ;; [clj-http.client :as client]
-   ;; [babashka.pods :as pods]
-   [clojure.edn :as edn]
    [babashka.curl :as curl]
    [babashka.fs :as fs]
+   [babashka.http-client :as http]
+   [babashka.pods :as pods]
+   [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.java.shell :refer [sh]]
    [selmer.parser :refer [render-file]]))
@@ -42,14 +43,31 @@
                      edn/read-string)]
     (map (fn [[k v]] (System/setProperty k v))
          env-vars)))
-(load-sys-properties-from-edn private-env-file)
+#_(load-sys-properties-from-edn private-env-file)
 
-(def headers
-  {:headers
-   {"Cookie"    (str "session=" (System/getProperty "AOC_SESSION"))
-    "UserAgent" (str (System/getProperty "AOC_REPO")
-                     " by "
-                     (System/getProperty "AOC_EMAIL"))}})
+(defn- get-private-configs
+  "Read a config value from an edn file.
+  Use for private data."
+  [file]
+  (let [m (-> (slurp file)
+              edn/read-string)]
+    m))
+
+(defn- get-private-val [k] (-> (get-private-configs private-env-file) (get k)))
+(defn- get-aoc-session [] (-> (get-private-val "AOC_SESSION")))
+(defn- get-aoc-repo [] (get-private-val "AOC_REPO"))
+(defn- get-aoc-email [] (get-private-val "AOC_EMAIL"))
+
+#_(get-aoc-session)
+#_(get-aoc-repo)
+
+;; Can't get System/getenv to read the the private info
+#_(def headers
+    {:headers
+     {"Cookie"    (str "session=" (System/getenv "AOC_SESSION"))
+      "UserAgent" (str (System/getenv "AOC_REPO")
+                       " by "
+                       (System/getenv "AOC_EMAIL"))}})
 (def badge-style
   {"color"      "00cc00" ; right side
    "labelColor" "0a0e25" ; left side
@@ -71,7 +89,7 @@
 (defn- input-path  [y d] (format "resources/%s/d%s.txt"     y (zero-pad-str d)))
 
 ;; => "src/aoc/2023/d07.clj"
-(source-path 2023 7)
+#_(source-path 2023 7)
 ;; => "src/aoc/2023/day_07/core.clj"
 
 
@@ -86,12 +104,13 @@
                         :src source-path
                         :test test-path)
         fname (file-function year day)]
-    (println "Create new file using template:" template "for year:" year "and day:" day)
-    (if (fs/exists? fname)
-      (println (format "Create '%s' failed, file already exists." fname))
-      (doall
-       (io/make-parents fname)
-       (spit fname (render-file template {:year year :day d0}))))))
+    (do
+      (if (fs/exists? fname)
+        (println (format "Create '%s' failed, file already exists." fname))
+        (do
+          (println "Create new file" fname "using template:" template "for year:" year "and day:" day)
+          (io/make-parents fname)
+          (spit fname (render-file template {:year year :day d0})))))))
 
 (defn template-day
   "Create stubs
@@ -99,8 +118,9 @@
   (template-day {:y 2023 :d 3})"
   [{:keys [y d] :or {y current-year d current-day}}]
   (do
-    (println "Creating templates: inputs year:" y "day:" d)
-    (map #(create-new-file % y d) [:src :test])))
+    (println "Creating stubs from templates template: year:" y "day:" d)
+    (create-new-file :src y d)
+    (create-new-file :test y d)))
 
 ;; Header is slightly different. Does this matter?
 #_(defn download-input-bb
@@ -113,28 +133,64 @@
          (io/make-parents fname)
          (spit fname (:body (curl/get (input-url y d) headers)))))))
 
+#_(download-input-bb {:y 2023 :d 2})
+
 ;; this is working with clj-http.client, but not babashka.curl
-(defn- download-input
+(defn download-input
   [{:keys [y d] :or {y current-year d current-day}}]
+  (load-sys-properties-from-edn private-env-file)
   (try
-    (doall
-     (load-sys-properties-from-edn private-env-file)
-     (let [cookie (System/getProperty "AOC_SESSION")
-           fname (input-path y d)
-           url (input-url y d)
-           repo-url (System/getProperty "AOC_REPO")
-           email (System/getProperty "AOC_EMAIL")
-           headers {"UserAgent" (str repo-url " by " email)}
-           body (:body (curl/get url {:cookies {"session" {:value cookie}}
-                                      :headers headers}))]
-       (if (fs/exists? fname)
-         (println (format "Create '%s' failed, file already exists." fname))
-         (doall
-          (io/make-parents fname)
-          (spit fname body)))))
+    (let [cookie (get-aoc-session)
+          fname (input-path y d)
+          url (input-url y d)
+          repo-url (get-aoc-repo)
+          email (get-aoc-email)
+          headers {"UserAgent" (str repo-url " by " email)}
+          body (:body (http/get url {:cookies {"session" {:value cookie}}
+                                     :headers headers}))]
+      (if (fs/exists? fname)
+        (println (format "Create '%s' failed, file already exists." fname))
+        (doall
+         (io/make-parents fname)
+         (spit fname body))))
     (catch Exception e
       (println "Ho, ho, ho! Did you forget to populate `session-cookie` with your AOC session cookie?")
       (throw e))))
+
+;; Not working
+#_(download-input {:y 2023 :d 1})
+
+
+(def headers-curl {:headers
+                   {"Cookie"    (str "session=" (get-aoc-session))
+                    "UserAgent" (str (get-aoc-repo) " by " (get-aoc-email))}})
+
+(defn download-input-curl
+  "Download the problem input for given day, and save to correct path."
+  [{:keys [y d] :or {y current-year d current-day}}]
+  (let [fname (input-path y d)
+        body (:body (curl/get (input-url y d) headers-curl))]
+    (if (fs/exists? fname)
+      (println (format "Create '%s' failed, file already exists." fname))
+      (do
+        (io/make-parents fname)
+        (spit fname body)))))
+
+#_(download-input-curl {:y 2023 :d 2})
+
+#_(defn fetch-input
+    [{:keys [y d] :or {y current-year d current-day}}]
+    (try
+      (let [cookie (get-aoc-session)]
+        (:body (client/get
+                (input-url y d)
+                {:cookies {"session" {:value cookie}}
+                 :headers {"User-Agent"
+                           "Bartev's AOC, https://github.com/bartev bartev@gmail.com"}})))
+      (catch Exception e
+        (println "Ho, ho, ho! Did you forget to populate `.aoc-session` with your AOC session cookie?")
+        (throw e))))
+
 
 (defn- save-badge
   "Create badge with year label and star count, and save to file."
@@ -165,7 +221,9 @@
   "Fire up all apps required to solve the problem"
   [{:keys [y d] :or {y current-year d current-day}}]
   (sh "open" (input-url y d))
-  (sh "open" (problem-url y d)))
+  (sh "open" (problem-url y d))
+  (download-input-curl {:y y :d d})
+  (template-day {:y y :d d}))
 
 #_(defn submit
     ""
