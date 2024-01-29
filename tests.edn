@@ -1,0 +1,14 @@
+#kaocha/v1 {}
+{:tests [{:id :unit
+          :source-paths ["src"]
+          :test-paths ["test"]
+          :ns-patterns ["-test$"]}
+         {:id :y2023 :test-paths ["test/aoc/2023"]}]
+ :plugins [:kaocha.plugin/print-invocation
+           :kaocha.plugin/profiling]
+ :capture-output? true
+ :color? true
+ :kaocha.plugin.profiling/count 10
+ :kaocha.plugin.profiling/profiling? true
+ ;; :reporter kaocha.report/documentation
+ :reporter kaocha.report/dots}

@@ -4,5 +4,5 @@
      [clojure.test :refer :all]))
 
 (deftest challenges
-  (is (= false (sut/part-1 sut/input)))
-  (is (= false (sut/part-2 sut/input))))
+  (is (= 11911 (sut/part-1 sut/input)))
+  #_(is (true? (sut/part-2 sut/input))))

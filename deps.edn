@@ -1,15 +1,13 @@
-{:deps {babashka/babashka.curl {:mvn/version "0.1.2"}
-        babashka/fs {:mvn/version "0.5.20"}
-        org.babashka/http-client {:mvn/version "0.4.15"}
-        clj-http/clj-http {:mvn/version "3.12.3"}
+{:deps {clj-http/clj-http {:mvn/version "3.12.3"}
         environ/environ {:mvn/version "1.2.0"}
         org.clojure/clojure {:mvn/version "1.11.1"}
-        selmer/selmer {:mvn/version "1.12.59"}}
+        org.clojure/data.csv {:mvn/version "1.0.1"}
+        selmer/selmer {:mvn/version "1.12.59"}
+        }
 
  :paths ["src" "resources"]
 
- :aliases {
-           ;; :dev {:jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}
+ :aliases {;; :dev {:jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}
            :test {:extra-paths ["test"]
                   :extra-deps {lambdaisland/kaocha {:mvn/version "1.87.1366"}
                                lambdaisland/kaocha-cloverage {:mvn/version "1.1.89"}
