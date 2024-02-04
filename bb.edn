@@ -13,7 +13,7 @@
          fetch    {:doc  "Download problem input for -y YYYY -d D, default today."
                    :task (exec 'tasks/fetch-input)}
          ;; go
-         go       {:doc  "Quickstart: Download data + create stubs + opens websites for the day."
+         go       {:doc  "Quickstart: Download data + create stubs + opens websites for the day.\ncmd: `bb go -y 2023 -d 9`"
                    :depends [download template]
                    :task (exec 'tasks/open-apps)}
          lint     {:doc  "Run clj-kondo over all src/test."

@@ -3,7 +3,7 @@
           :source-paths ["src"]
           :test-paths ["test"]
           :ns-patterns ["-test$"]}
-         {:id :y2023 :test-paths ["test/aoc/2023"]}]
+         {:id :y2023 :test-paths ["test/aoc/2023/day_09"]}]
  :plugins [:kaocha.plugin/print-invocation
            :kaocha.plugin/profiling]
  :capture-output? true
@@ -11,4 +11,6 @@
  :kaocha.plugin.profiling/count 10
  :kaocha.plugin.profiling/profiling? true
  ;; :reporter kaocha.report/documentation
- :reporter kaocha.report/dots}
+ :reporter kaocha.report/dots
+ ;; Run tests of file changes
+ :kaocha/watch #profile {:default true}}
