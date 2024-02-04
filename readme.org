@@ -37,3 +37,9 @@ Tests are under =tests=.
 Tests use =kaocha= (not sure how this works yet).
 
 =kaocha= recommends setting up test configs in =tests.edn=.
+
+Run with
+
+#+begin_example
+  bb test
+#+end_example

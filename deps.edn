@@ -1,7 +1,10 @@
 {:deps {clj-http/clj-http {:mvn/version "3.12.3"}
         environ/environ {:mvn/version "1.2.0"}
+        medley/medley {:mvn/version "1.4.0"}
         org.clojure/clojure {:mvn/version "1.11.1"}
         org.clojure/data.csv {:mvn/version "1.0.1"}
+        org.clojure/math.numeric-tower {:mvn/version "0.0.5"}
+        prismatic/plumbing {:mvn/version "0.6.0"}
         selmer/selmer {:mvn/version "1.12.59"}
         }
 
