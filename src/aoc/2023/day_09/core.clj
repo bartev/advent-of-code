@@ -63,30 +63,30 @@ input-sample
 
 (defn process-row
   "process a row of data"
-  [row]
+  [row reduce-fn]
   (loop [data [row]
          deltas (->deltas row)]
     (if (every? zero? deltas)
       (->> deltas
            (conj data)
-           (reduce-reverse inc-next))
+           (reduce-reverse reduce-fn))
       (do #_(println deltas)
           (recur (conj data deltas)
                  (->deltas deltas))))))
 
-(process-row (first input-sample))
+(process-row (first input-sample) inc-next)
 ;; => [0 3 6 9 12 15 18]
 
-(process-row (second input-sample))
+(process-row (second input-sample) inc-next)
 ;; => [1 3 6 10 15 21 28]
 
-(process-row (nth input-sample 2))
+(process-row (nth input-sample 2) inc-next)
 ;; => [10 13 16 21 30 45 68]
 
 
 (defn part-1 [input]
   (->> input
-       (map #(last (process-row %)))
+       (map #(last (process-row % inc-next)))
        (apply +)))
 
 (part-1 input-sample)
@@ -94,4 +94,23 @@ input-sample
 (part-1 input)
 ;; => 1834108701
 
-(defn part-2 [input] true)
+
+;; Part 2
+;; This time work BACKWARDS.
+;; Note, you'll need to subtract instead of add.
+
+(defn dec-next
+  "Add the last value of xs to the last value of ys, and append to end of ys"
+  [xs ys]
+  (cons (- (first ys) (first xs)) ys))
+
+(defn part-2 [input]
+  (->> input
+       (map #(first (process-row % dec-next)))
+       (apply +)))
+
+(part-2 input-sample)
+;; => 2
+
+(part-2 input)
+;; => 993
