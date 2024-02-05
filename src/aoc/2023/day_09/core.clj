@@ -1,7 +1,13 @@
 (ns aoc.2023.day-09.core
   (:require
-   [aoc.file-util :as f]
-   [aoc.string-util :as s]))
+   [aoc.file-util :as f]))
+
+;; What I learned
+
+;; ->delta is pretty good. Added to `coll_util.clj` with improvement by tschady.
+
+;; Could've written a function to call itself recursively, and add the
+;; last value each time.
 
 (def input (f/read-int-vectors "2023/d09.txt"))
 (def input-sample (f/read-int-vectors "aoc/2023/day_09/sample.txt"))
@@ -30,16 +36,6 @@ input-sample
 
 
 (defn ->deltas [row] (mapv - (rest row) row))
-
-(defn <-deltas [row deltas]
-  (let [delta+ (conj deltas (last deltas))]
-    (mapv + row delta+)))
-
-(<-deltas [0 3 6 9] [3 3 3 3])
-
-(def xs [1 2 3 4])
-(last xs)
-(conj xs (last xs))
 
 (defn inc-prev
   "Add the last value of ys to the last value of xs, and append to end of xs"
