@@ -37,3 +37,33 @@
 ;; => "135791113151719"
 
 (transduce xform conj [1 2 3])
+
+
+(def xf (comp (filter odd?) (map inc)))
+(transduce xf + (range 5))
+;; => 6
+(transduce xf + 100 (range 5))
+;; => 106
+
+(->> (range 5)
+     (filter odd?)
+     (map inc)
+     (reduce +))
+;; => 6
+;; => (2 4)
+
+(range 5)
+;; => (0 1 2 3 4)
+
+(def iter (eduction xf (range 5)))
+
+(reduce + 0 iter)
+;; => 6
+
+(into [] xf (range 10))
+;; => [2 4 6 8 10]
+
+(sequence xf (range 10))
+;; => (2 4 6 8 10)
+
+(iteration xf (range 10))

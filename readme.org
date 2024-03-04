@@ -12,7 +12,7 @@ My Clojure solutions to the [[https://adventofcode.com][Advent of Code]] challen
 
 ** Babashka scripts
 
-Hand scripts (thanks tschady) are in =script=.
+Handy scripts (thanks tschady) are in =script=.
 
 =bb.edn= defines tasks that call them.
 
@@ -43,3 +43,41 @@ Run with
 #+begin_example
   bb test
 #+end_example
+
+* Learnings
+
+** Transducers
+[[https://clojure.org/reference/transducers]]
+
+*** Reducing function
+The kind of function you'd pass to =reduce=
+Takes an accumulated result and a new input and returns a new accumulated result.
+
+*** Transducer (=xform= or =xf=)
+A transformation from one reducing function to another.
+
+Examples
+#+begin_src clojure
+  (filter odd?) ;; returns a transducer that filters odd
+  (map inc)     ;; returns a mapping transducer for incrementing
+  (take 5)      ;; returns a transducer that will take the first 5 values
+#+end_src
+*** Compose with =comp=
+Use the existing =comp= function.
+=comp= applies the rightmost function to the parameters, then the next rightmost function to the result, and so on.
+
+#+begin_src clojure
+  (def xf
+    (comp
+     (filter odd?)
+     (map inc)
+     (take 5)))
+#+end_src
+
+The transformation above is equivalent to the sequence transformation
+#+begin_src clojure
+  (->> coll
+       (filter odd?)
+       (map inc)
+       (take 5))
+#+end_src
