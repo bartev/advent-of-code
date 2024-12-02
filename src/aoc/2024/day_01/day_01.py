@@ -88,14 +88,16 @@ the total distance between your lists?
 
 """
 
-from io import StringIO
+from collections import Counter
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
-from rich import print
+from rich import print as rprint
+from rich.console import Console
+from rich.panel import Panel
 
-data = """
+console = Console()
+
+DATA = """
 3   4
 4   3
 2   5
@@ -104,12 +106,14 @@ data = """
 3   3
 """
 
+rprint(Panel.fit("Part 1"))
+
 
 def part1(data_str: str) -> int:
     """Run part 1 given the input file"""
     list1, list2 = [], []
 
-    for line in data.strip().split("\n"):
+    for line in data_str.strip().split("\n"):
         num1, num2 = map(int, line.split())
         list1.append(num1)
         list2.append(num2)
@@ -122,19 +126,95 @@ def part1(data_str: str) -> int:
     return sum(list3)
 
 
-print(f"""test data: {part1(data)=}""")
+console.print(f"""test data: {part1(DATA)=}""")
 
 dname = Path("../../../../resources/2024/")
 fname = dname / "d01.txt"
 
 with open(fname, "r") as f:
-    data = f.read()
+    input_data = f.read()
 
-print(f"""Problem input: {part1(data)=}""")
+rprint(f"""Problem input: {part1(input_data)=}""")
 
-# f = StringIO(data)
 
-# df = pd.read_csv(f, delimiter="   ", header=None, names=["a", "b"])
+"""
+--- Part Two ---
 
-# df = (df.assign(c=lambda x: np.abs(x["a"] - x["b"])))
-# df.sum()
+Your analysis only confirmed what everyone feared: the two lists of
+location IDs are indeed very different.
+
+Or are they?
+
+The Historians can't agree on which group made the mistakes or how to
+read most of the Chief's handwriting, but in the commotion you notice
+an interesting detail: a lot of location IDs appear in both lists!
+Maybe the other numbers aren't location IDs at all but rather
+misinterpreted handwriting.
+
+This time, you'll need to figure out exactly how often each number
+from the left list appears in the right list. Calculate a total
+similarity score by adding up each number in the left list after
+multiplying it by the number of times that number appears in the right
+list.
+
+Here are the same example lists again:
+
+3   4
+4   3
+2   5
+1   3
+3   9
+3   3
+For these example lists, here is the process of finding the similarity score:
+
+The first number in the left list is 3. It appears in the right list three
+times, so the similarity score increases by 3 * 3 = 9.
+
+The second number in the left list is 4. It appears in the right list
+once, so the similarity score increases by 4 * 1 = 4.
+
+The third number in the left list is 2. It does not appear in the
+right list, so the similarity score does not increase (2 * 0 = 0).
+
+The fourth number, 1, also does not appear in the right list.
+
+The fifth number, 3, appears in the right list three times; the similarity
+score increases by 9.
+
+The last number, 3, appears in the right list three times; the similarity
+score again increases by 9.
+
+So, for these example lists, the similarity score at the end of this
+process is 31 (9 + 4 + 0 + 0 + 9 + 9).
+
+Once again consider your left and right lists. What is their similarity score?
+
+"""
+rprint(Panel.fit("Part 2"))
+
+
+def part2(data_str: str) -> int:
+    """Run part 2 given the input file"""
+    list1, list2 = [], []
+
+    for line in data_str.strip().split("\n"):
+        num1, num2 = map(int, line.split())
+        list1.append(num1)
+        list2.append(num2)
+
+    # list1.sort()
+    # list2.sort()
+
+    # list3 = [abs(a - b) for a, b in zip(list1, list2)]
+
+    # return sum(list3)
+
+    counts = Counter(list2)
+    list3 = [counts[v] for v in list1]
+    list4 = [v * c for v, c in zip(list1, list3)]
+    return sum(list4)
+
+
+rprint(f"""test data: {part2(DATA)=}""")
+
+rprint(f"""Problem input: {part2(input_data)=}""")
