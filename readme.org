@@ -22,6 +22,9 @@ e.g. To create stub files for 2023 day 7, download the data to =resources/day07.
   bb go -y 2023 -d 7
 #+end_example
 
+- Make sure to update the =AOC_SESSION= cookie annually
+[[https://github.com/wimglenn/advent-of-code-wim/issues/1]]
+
 ** Basic setup
 
 Use =deps.edn= to define dependencies and paths.
@@ -43,6 +46,10 @@ Run with
 #+begin_example
   bb test
 #+end_example
+
+* Running code
+
+** Clojure
 
 * Learnings
 

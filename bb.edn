@@ -12,6 +12,9 @@
                    :task (exec 'tasks/download-input-curl)}
          fetch    {:doc  "Download problem input for -y YYYY -d D, default today."
                    :task (exec 'tasks/fetch-input)}
+
+         try-me {:doc "Test making directories"
+                 :task (exec 'tasks/try-me)}
          ;; go
          go       {:doc  "Quickstart: Download data + create stubs + opens websites for the day.\ncmd: `bb go -y 2023 -d 9`"
                    :depends [download template]

@@ -176,8 +176,14 @@
         (io/make-parents fname)
         (spit fname body)))))
 
+(defn try-me
+  "Try some code"
+  [{:keys [y d] :or {y current-year d current-day}}]
+  (println (format "year '%s' day '%s'" y d)))
+
 #_(download-input-curl {:y 2023 :d 2})
 
+;; Comment out because of `client`
 #_(defn fetch-input
     [{:keys [y d] :or {y current-year d current-day}}]
     (try
