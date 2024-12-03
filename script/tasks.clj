@@ -88,6 +88,9 @@
 ;; (defn- test-path   [y d] (format "test/aoc/%s/d%s_test.clj" y (zero-pad-str d)))
 (defn- input-path  [y d] (format "resources/%s/d%s.txt"     y (zero-pad-str d)))
 
+(defn- source-py-path [y d] (format "src/aoc/%s/day_%s/puzzle.py"      y (zero-pad-str d)))
+(defn- test-py-path   [y d] (format "src/aoc/%s/day_%s/puzzle_test.py" y (zero-pad-str d)))
+
 ;; => "src/aoc/2023/d07.clj"
 #_(source-path 2023 7)
 ;; => "src/aoc/2023/day_07/core.clj"
@@ -99,10 +102,15 @@
   (let [d0 (zero-pad-str day)
         template (condp = template-type
                    :src "templates/src.clj"
-                   :test "templates/test.clj")
+                   :test "templates/test.clj"
+                   :src-py "templates/src.py"
+                   :test-py "templates/test.py"
+                   )
         file-function (condp = template-type
                         :src source-path
-                        :test test-path)
+                        :test test-path
+                        :src-py source-py-path
+                        :test-py test-py-path)
         fname (file-function year day)]
     (do
       (if (fs/exists? fname)
@@ -120,7 +128,9 @@
   (do
     (println "Creating stubs from templates template: year:" y "day:" d)
     (create-new-file :src y d)
-    (create-new-file :test y d)))
+    (create-new-file :test y d)
+    (create-new-file :src-py y d)
+    (create-new-file :test-py y d)))
 
 ;; Header is slightly different. Does this matter?
 #_(defn download-input-bb
@@ -230,8 +240,3 @@
   (sh "open" (problem-url y d))
   (download-input-curl {:y y :d d})
   (template-day {:y y :d d}))
-
-#_(defn submit
-    ""
-    []
-    )
