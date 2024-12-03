@@ -22,17 +22,27 @@ dname = Path("../../../../resources/2024/")
 fname = dname / "d02.txt"
 fname_test = "test_data.txt"
 
+# ########## Part 1
+
 rprint(Panel.fit("Part 1"))
 
 
 def read_as_rows(filename: str) -> list[int]:
     """Read a list of row data, each row containing several ints
-    separated by spaces.  Return a list of list of ints"""
-
+    separated by spaces.  Return a list of list of ints
+    """
     with open(filename, "r") as f:
         result = [[int(num) for num in line.strip().split()] for line in f]
-
     return result
+
+
+def calc_diffs(row: list[int]) -> list[int]:
+    return [row[i] - row[i - 1] for i in range(1, len(row))]
+
+
+def get_diffs_from_fname(filename: str) -> list[list[int]]:
+    data = read_as_rows(filename)
+    return [calc_diffs(row) for row in data]
 
 
 # Filter rows
@@ -44,18 +54,6 @@ def crit_2(row: list[int]) -> bool:
     return all(abs(x) >= 1 for x in row) and all(abs(x) <= 3 for x in row)
 
 
-def calc_diffs(row: list[int]) -> list[int]:
-    return [row[i] - row[i - 1] for i in range(1, len(row))]
-
-
-def get_diffs_from_fname(filename: str) -> list[list[int]]:
-    data = read_as_rows(filename)
-    diffs = []
-    for row in data:
-        diffs.append(calc_diffs(row))
-    return diffs
-
-
 def check_criteria(row: list[int]) -> bool:
     return crit_1(row) and crit_2(row)
 
@@ -63,12 +61,10 @@ def check_criteria(row: list[int]) -> bool:
 def part1(filename: str) -> int:
     """Run part 1 given the input file
     Return value should be the solution
-    Return how many reports are safe"""
-
+    Return how many reports are safe
+    """
     diffs = get_diffs_from_fname(filename)
-    # filtered_rows = [row for row in diffs if crit_1(row) and crit_2(row)]
     filtered_rows = [row for row in diffs if check_criteria(row)]
-
     return len(filtered_rows)
 
 
@@ -76,6 +72,7 @@ console.print(f"""test data: {part1(fname_test)}""")
 
 rprint(f"""Problem input: {part1(fname)}""")
 
+# ########## Part 2
 
 rprint(Panel.fit("Part 2"))
 

@@ -8,39 +8,36 @@ from rich.panel import Panel
 
 console = Console()
 
-DATA = """
-"""
-
 dname = Path("../../../../resources/{{year}}/")
 fname = dname / "d{{day}}.txt"
+fname_test = "test_data.txt"
+
+# ########## Part 1
 
 rprint(Panel.fit("Part 1"))
 
 
-def part1(data_str: str) -> int:
+def part1(filename: str) -> int:
     """Run part 1 given the input file
     Return value should be the solution"""
     pass
 
 
-console.print(f"""test data: {part1(DATA)}""")
+console.print(f"""test data: {part1(fname_test)}""")
 
+rprint(f"""Problem input: {part1(fname)}""")
 
-with open(fname, "r") as f:
-    input_data = f.read()
-
-rprint(f"""Problem input: {part1(input_data)}""")
-
+# ########## Part 2
 
 rprint(Panel.fit("Part 2"))
 
 
-def part2(data_str: str) -> int:
+def part2(filename: str) -> int:
     """Run part 2 given the input file
     Return value should be the solution"""
     pass
 
 
-rprint(f"""test data: {part2(DATA)}""")
+rprint(f"""test data: {part2(fname_test)}""")
 
-rprint(f"""Problem input: {part2(input_data)}""")
+rprint(f"""Problem input: {part2(fname)}""")
