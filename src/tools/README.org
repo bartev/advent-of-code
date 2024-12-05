@@ -1,0 +1,5 @@
+#+title: README
+#+author: Bartev
+#+date: 2024-12-04
+
+These tools are from my solutions to 2023 days 1-7, before I started automatically downloading and populating stub files.
