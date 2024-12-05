@@ -88,8 +88,9 @@
 ;; (defn- test-path   [y d] (format "test/aoc/%s/d%s_test.clj" y (zero-pad-str d)))
 (defn- input-path  [y d] (format "resources/%s/d%s.txt"     y (zero-pad-str d)))
 
-(defn- source-py-path [y d] (format "src/aoc/%s/day_%s/puzzle.py"      y (zero-pad-str d)))
-(defn- test-py-path   [y d] (format "src/aoc/%s/day_%s/puzzle_test.py" y (zero-pad-str d)))
+(defn- source-py-path [y d] (format "src/aoc/yr_%s/day_%s/puzzle.py"      y (zero-pad-str d)))
+(defn- test-py-path   [y d] (format "src/aoc/yr_%s/day_%s/puzzle_test.py" y (zero-pad-str d)))
+(defn- problem-path   [y d] (format "src/aoc/yr_%s/day_%s/problem.org"    y (zero-pad-str d)))
 
 ;; => "src/aoc/2023/d07.clj"
 #_(source-path 2023 7)
@@ -105,12 +106,14 @@
                    :test "templates/test.clj"
                    :src-py "templates/src.py"
                    :test-py "templates/test.py"
+                   :problem "templates/problem.org"
                    )
         file-function (condp = template-type
                         :src source-path
                         :test test-path
                         :src-py source-py-path
-                        :test-py test-py-path)
+                        :test-py test-py-path
+                        :problem problem-path)
         fname (file-function year day)]
     (do
       (if (fs/exists? fname)
@@ -130,7 +133,9 @@
     (create-new-file :src y d)
     (create-new-file :test y d)
     (create-new-file :src-py y d)
-    (create-new-file :test-py y d)))
+    (create-new-file :problem y d)
+    ;; (create-new-file :test-py y d)
+    ))
 
 ;; Header is slightly different. Does this matter?
 #_(defn download-input-bb
@@ -145,27 +150,27 @@
 
 #_(download-input-bb {:y 2023 :d 2})
 
-;; this is working with clj-http.client, but not babashka.curl
-(defn download-input
-  [{:keys [y d] :or {y current-year d current-day}}]
-  (load-sys-properties-from-edn private-env-file)
-  (try
-    (let [cookie (get-aoc-session)
-          fname (input-path y d)
-          url (input-url y d)
-          repo-url (get-aoc-repo)
-          email (get-aoc-email)
-          headers {"UserAgent" (str repo-url " by " email)}
-          body (:body (http/get url {:cookies {"session" {:value cookie}}
-                                     :headers headers}))]
-      (if (fs/exists? fname)
-        (println (format "Create '%s' failed, file already exists." fname))
-        (doall
-         (io/make-parents fname)
-         (spit fname body))))
-    (catch Exception e
-      (println "Ho, ho, ho! Did you forget to populate `session-cookie` with your AOC session cookie?")
-      (throw e))))
+;; ;; this is working with clj-http.client, but not babashka.curl
+;; (defn download-input
+;;   [{:keys [y d] :or {y current-year d current-day}}]
+;;   (load-sys-properties-from-edn private-env-file)
+;;   (try
+;;     (let [cookie (get-aoc-session)
+;;           fname (input-path y d)
+;;           url (input-url y d)
+;;           repo-url (get-aoc-repo)
+;;           email (get-aoc-email)
+;;           headers {"UserAgent" (str repo-url " by " email)}
+;;           body (:body (http/get url {:cookies {"session" {:value cookie}}
+;;                                      :headers headers}))]
+;;       (if (fs/exists? fname)
+;;         (println (format "Create '%s' failed, file already exists." fname))
+;;         (doall
+;;          (io/make-parents fname)
+;;          (spit fname body))))
+;;     (catch Exception e
+;;       (println "Ho, ho, ho! Did you forget to populate `session-cookie` with your AOC session cookie?")
+;;       (throw e))))
 
 ;; Not working
 #_(download-input {:y 2023 :d 1})

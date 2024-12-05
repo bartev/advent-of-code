@@ -1,0 +1,11 @@
+#+title: problem
+#+author: Bartev
+#+date: {{year}}-12-{{day}}
+* Part 1
+
+** Answer
+
+* Part 2
+
+** Answer
+
