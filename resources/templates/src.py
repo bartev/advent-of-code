@@ -3,10 +3,8 @@
 from pathlib import Path
 
 from rich import print as rprint
-from rich.console import Console
 from rich.panel import Panel
-
-console = Console()
+from rich.rule import Rule
 
 dname = Path("../../../../resources/{{year}}/")
 fname = dname / "d{{day}}.txt"
@@ -14,7 +12,8 @@ fname_test = "test_data.txt"
 
 # ########## Part 1
 
-rprint(Panel.fit("Part 1"))
+rprint(Rule("Part 1", style="bold green"))
+rprint(Panel.fit("[bold green]Part 1"))
 
 
 def part1(filename: str) -> int:
@@ -23,13 +22,14 @@ def part1(filename: str) -> int:
     pass
 
 
-console.print(f"""test data: {part1(fname_test)}""")
+rprint(f"""test data: {part1(fname_test)}""")
 
 rprint(f"""Problem input: {part1(fname)}""")
 
 # ########## Part 2
 
-rprint(Panel.fit("Part 2"))
+rprint(Rule("Part 2", style="bold red"))
+rprint(Panel.fit([bold red]"Part 2"))
 
 
 def part2(filename: str) -> int:
