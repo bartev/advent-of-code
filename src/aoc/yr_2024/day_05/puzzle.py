@@ -26,14 +26,18 @@ other pages.
 I tested it by applying to all the data and seeing if I got the right
 answer (I did)
 
-I solved this problem 2 ways
+I solved this problem 3 ways
 1. Use networkx to create a DAG, and then do a topological sort on it.
 2. Count the outputs and inputs from each page.
    Most outputs = first page
    2nd most outputs = 2nd page
    ...
    0 outputs = last page (= most inputs)
-
+3. Don't assume all pages are connected by a rule
+   Find rules that fail
+   Fix each failure
+   Find rules that still fail
+   Repeat until no failures
 """
 
 from collections import Counter
@@ -44,9 +48,12 @@ from rich import print as rprint
 from rich.panel import Panel
 from rich.rule import Rule
 
+from aoc.pyutils.utils import time_it
+
 dname = Path("../../../../resources/2024/")
 fname = dname / "d05.txt"
 FNAME_TEST = "test_data.txt"
+
 
 # ########## Part 1
 
@@ -96,6 +103,7 @@ def middle_page(pages: list[int]) -> int:
     return pages[(len(pages) - 1) // 2]
 
 
+@time_it
 def part1(filename: str) -> int:
     """Run part 1 given the input file
     Return value should be the solution"""
@@ -148,6 +156,7 @@ def fix_order(pages: list[int], rules: list[tuple]) -> list[int]:
     return ordered_pages
 
 
+@time_it
 def part2(filename: str) -> int:
     """Run part 2 given the input file
     Return value should be the solution"""
@@ -186,6 +195,7 @@ def fix_order_no_network(pages: list[int], rules: list[tuple]) -> list[int]:
     return res
 
 
+@time_it
 def part2b(filename: str) -> int:
     """Try part2 w/o networkx"""
     rules, list_pages = read_data(filename)
@@ -197,3 +207,64 @@ def part2b(filename: str) -> int:
 
 rprint(f"""test data: {part2b(FNAME_TEST)}""")
 rprint(f"""Problem input: {part2b(fname)}""")
+
+rprint(Rule("Part 2c (incomplete rules ok)", style="bold blue"))
+rprint(Panel.fit("[bold yellow]Part 2c", style="bold blue"))
+
+
+def move_item(pages: list[int], idx_before: int, idx_after: int) -> list[int]:
+    """move the item in index `from` to the index `to`"""
+    if idx_before < idx_after:
+        # rprint(f"Skipping rule, out of order")
+        pass
+    else:
+        item = pages.pop(idx_before)
+        pages.insert(idx_after, item)
+    return pages
+
+
+def fix_pages_rule(pages: list[int], rule: tuple) -> list[int]:
+    """Fix pages for a single rule"""
+    before, after = rule
+    idx_before = pages.index(before)
+    idx_after = pages.index(after)
+    return move_item(pages, idx_before, idx_after)
+
+
+def fix_pages_move(pages: list[int], rules: list[tuple]) -> list[int]:
+    """Fix a set of pages by moving the page that cause it to fail a rule.
+    pages is a single set of pages (1 line in the inputs)
+    rules is the full set of rules (not all apply)
+    """
+    rel_rules = relevant_rules(rules, pages)
+    # rprint(f"rules: {rel_rules}")
+    failing_rules = [rule for rule in rel_rules if not rule_passes(rule, pages)]
+    # Watch out for mutating a list in a loop.
+    # In this case, the loop doesn't depend on pages, so I think it's ok
+    if failing_rules:
+        # Apply all fixes
+        # Some may not be able to be applied after a previous move, but
+        # will be fixed the next time around
+        for rule in failing_rules:
+            pages = fix_pages_rule(pages, rule)
+        pages = fix_pages_move(pages, rel_rules)
+    return pages
+
+
+@time_it
+def part2c(filename: str) -> int:
+    """Solve even with incomplete rules"""
+    rules, list_pages = read_data(filename)
+    bad_pages = [pages for pages in list_pages if not apply_rules(rules, pages)]
+    # rprint(f"bad_pages: {bad_pages}")
+    # cur_page = bad_pages[2]
+    # rprint(f"input: {cur_page}")
+    # fixed_pages = fix_pages_move(cur_page, rules)
+    # rprint(f"fixed: {fixed_pages}")
+    fixed_pages = [fix_pages_move(pages, rules) for pages in bad_pages]
+    res = [middle_page(pages) for pages in fixed_pages]
+    return sum(res)
+
+
+rprint(f"""test data: {part2c(FNAME_TEST)}""")
+rprint(f"""Problem input: {part2c(fname)}""")
