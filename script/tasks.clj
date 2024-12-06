@@ -130,8 +130,8 @@
   [{:keys [y d] :or {y current-year d current-day}}]
   (do
     (println "Creating stubs from templates template: year:" y "day:" d)
-    (create-new-file :src y d)
-    (create-new-file :test y d)
+    ;; (create-new-file :src y d)
+    ;; (create-new-file :test y d)
     (create-new-file :src-py y d)
     (create-new-file :problem y d)
     ;; (create-new-file :test-py y d)
