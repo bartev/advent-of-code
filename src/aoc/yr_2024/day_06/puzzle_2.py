@@ -135,16 +135,10 @@ class Puzzle:
         """Get the increment vector given the current direction"""
         return self.INCREMENTS[self.cur_dir]
 
-    def replace_char(self, s: str, n: int, ch: str = "+"):
+    def replace_char(self, s: str, n: int, ch: str):
         """Replace the char at string index `n` with ch"""
-        if n < 0 or n > len(s):
+        if n < 0 or n >= len(s):
             raise ValueError(f"n ({n}) is out of range")
-        if ch not in self.DIRECTIONS + ["-", "|", "+"]:
-            pass
-        elif s[n] in self.DIRECTIONS:
-            ch = s[n]
-        elif s[n] in ["-", "|"]:
-            ch = "+"
         return s[:n] + ch + s[n + 1 :]
 
     def guard_pos_in_row(self, row: str):
@@ -184,6 +178,18 @@ class Puzzle:
             rprint(line)
         print()
 
+    def draw_map(self, pos: Position = None):
+        """Draw map with new obstacles"""
+        printmap = self.labmap.copy()
+        posit = pos if pos else self.cur_pos
+        r, c = posit.pos
+        new_obs = self.new_obstacles  # list[tuple]
+        for row, col in new_obs:
+            printmap[row] = self.replace_char(printmap[row], col, "O")
+        for line in printmap:
+            rprint(line)
+        print()
+
     def exiting(self, pos: Position = None, direction: str = None):
         """True if next step would exit the map"""
         row, col = pos.pos if pos else self.cur_pos.pos
@@ -209,7 +215,7 @@ class Puzzle:
         else:
             self.cur_dir = self.next_dir
         r, c = self.cur_pos.pos
-        self.labmap[r] = self.replace_char(self.labmap[r], c, ch="+")
+        self.labmap[r] = self.replace_char(self.labmap[r], c, ch=self.cur_dir)
 
     def find_obstacle_up(self, pos: Position = None) -> Position:
         """Return the guard's ending position if traveling up"""
@@ -294,7 +300,7 @@ class Puzzle:
         return sum(counts)
 
     def find_all_loop_spots(self, start_pos, end_pos) -> Position:
-        """Find the first loops spot between start/end pos"""
+        """Find all loops spot between start/end pos"""
         next_dir = self.next_dir
         incr = self.incr
         # print(f"{next_dir=}, {incr=}, {self.cur_dir=}")
@@ -332,6 +338,7 @@ def part2(filename: str) -> int:
         end_pos = puzzle.find_obstacle()
         puzzle.add_obstacle(end_pos)
         puzzle.find_all_loop_spots(start_pos, end_pos)
+        puzzle.draw_map()
         puzzle.cur_pos = end_pos
         puzzle.turn()
         # rprint(f"Bottom of while loop {puzzle.cur_pos}")
@@ -346,4 +353,4 @@ def part2(filename: str) -> int:
 
 
 rprint(f"""test data: {part2(FNAME_TEST)}""")
-rprint(f"""Problem input: {part2(fname)}""")
+# rprint(f"""Problem input: {part2(fname)}""")
