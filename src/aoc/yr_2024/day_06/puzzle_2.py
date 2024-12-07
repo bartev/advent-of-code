@@ -314,21 +314,6 @@ class Puzzle:
             next_pos = next_pos + incr
 
 
-# @time_it
-# def part1(filename: str) -> int:
-#     """Run part 1 given the input file
-#     Return value should be the solution"""
-#     puzzle = Puzzle(filename)
-
-#     while not puzzle.exiting():
-#         end_pos = puzzle.find_obstacle()
-
-#     return puzzle.count_non_dots()
-
-
-# rprint(f"""test data: {part1(FNAME_TEST)}""")
-# rprint(f"""Problem input: {part1(fname)}""")
-
 # ########## Part 2
 
 
