@@ -35,6 +35,15 @@ dname = Path("../../../../resources/2024/")
 fname = dname / "d06.txt"
 FNAME_TEST = "test_data.txt"
 
+import logging
+from rich.logging import RichHandler
+
+# Set up basic config for logging
+FORMAT = "%(funcName)s - %(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, handlers=[RichHandler()])
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 def read_data(filename: str) -> list[str]:
     """Read the data into rules and pages"""
@@ -143,21 +152,23 @@ class Puzzle:
 
     def guard_pos_in_row(self, row: str):
         """get the guard's position in a row"""
-
         res = None
         for guard in self.DIRECTIONS:
             if guard in row:
                 res = row.index(guard)
-                break
-        return res
+                logger.debug(f"guard pos {guard} = {res}")
+                return res
 
     def find_guard(self) -> Position:
         """Get the guard's position"""
         pos = [
             (idx, self.guard_pos_in_row(line))
             for idx, line in enumerate(self.labmap)
-            if self.guard_pos_in_row(line)
+            if self.guard_pos_in_row(line) is not None
         ][0]
+        logger.debug(f"{pos=}")
+        # breakpoint()
+
         return Position(*pos)
 
     def init_dir(self):
@@ -178,7 +189,7 @@ class Puzzle:
             rprint(line)
         print()
 
-    def draw_map(self, pos: Position = None):
+    def draw_map(self, pos: Position = None, filename: str = None):
         """Draw map with new obstacles"""
         printmap = self.labmap.copy()
         posit = pos if pos else self.cur_pos
@@ -186,8 +197,14 @@ class Puzzle:
         new_obs = self.new_obstacles  # list[tuple]
         for row, col in new_obs:
             printmap[row] = self.replace_char(printmap[row], col, "O")
-        for line in printmap:
-            rprint(line)
+        if filename:
+            with open(filename, "w") as f:
+                for line in printmap:
+                    f.write(line + "\n")
+
+        else:
+            for line in printmap:
+                rprint(line)
         print()
 
     def exiting(self, pos: Position = None, direction: str = None):
@@ -201,10 +218,10 @@ class Puzzle:
             or (direc == "<" and col == self.min_col)
         )
 
-    @property
-    def next_dir(self):
+    def next_dir(self, direction: str = None):
         """Return the next direction (don't change anything)"""
-        idx = self.DIRECTIONS.index(self.cur_dir)
+        direc = direction if direction else self.cur_dir
+        idx = self.DIRECTIONS.index(direc)
         new_idx = (idx + 1) % 4
         return self.DIRECTIONS[new_idx]
 
@@ -213,7 +230,7 @@ class Puzzle:
         if self.exiting():
             pass
         else:
-            self.cur_dir = self.next_dir
+            self.cur_dir = self.next_dir()
         r, c = self.cur_pos.pos
         self.labmap[r] = self.replace_char(self.labmap[r], c, ch=self.cur_dir)
 
@@ -300,19 +317,24 @@ class Puzzle:
         return sum(counts)
 
     def find_all_loop_spots(self, start_pos, end_pos) -> Position:
-        """Find all loops spot between start/end pos"""
-        next_dir = self.next_dir
+        """Find all loops spot between start/end pos
+        Check to see if we've seen this obstacle OR the following one.
+        It may be enough to just check the following one...
+        """
+        next_dir = self.next_dir()
+        next_dir2 = self.next_dir(next_dir)
         incr = self.incr
-        # print(f"{next_dir=}, {incr=}, {self.cur_dir=}")
         next_pos = start_pos + incr
+        # Stop before end_pos, so you don't add an obstacle over an existing one.
         while next_pos.lt(other=end_pos, direction=incr):
             # rprint(f"checking {next_pos}, in direction {next_dir}")
             obstacle = self.find_obstacle(pos=next_pos, direction=next_dir)
+            obstacle2 = self.find_obstacle(pos=obstacle, direction=next_dir2)
             if self.exiting(pos=obstacle, direction=next_dir):
                 pass
             else:
                 # rprint(f"obstacle found {obstacle}")
-                if obstacle.pos in self.stops[next_dir]:
+                if obstacle2.pos in self.stops[next_dir2]:
                     # found a possible loop (1 place past current spot)
                     loop_obstacle_pos = next_pos + incr
                     rprint(f"loop obstacle location found: {loop_obstacle_pos}")
@@ -333,12 +355,17 @@ def part2(filename: str) -> int:
     Return value should be the solution"""
     puzzle = Puzzle(filename)
     rprint("starting")
+    puzzle.draw_map(filename="map_starting.txt")
     while not puzzle.exiting():
         start_pos = puzzle.cur_pos
         end_pos = puzzle.find_obstacle()
+        logger.debug(f"{end_pos=} (exiting? {puzzle.exiting(end_pos)})")
+        if puzzle.obstacle_exists(end_pos):
+            rprint(f"You've entered a loop at {end_pos=}")
+            break
         puzzle.add_obstacle(end_pos)
         puzzle.find_all_loop_spots(start_pos, end_pos)
-        puzzle.draw_map()
+        # puzzle.draw_map()
         puzzle.cur_pos = end_pos
         puzzle.turn()
         # rprint(f"Bottom of while loop {puzzle.cur_pos}")
@@ -346,11 +373,31 @@ def part2(filename: str) -> int:
         # loop_pos = puzzle.find_loop_pos(puzzle.cur_pos, end_pos=end_pos)
         # new_obstacle = puzzle.would_make_loop(end_pos)
 
+    puzzle.draw_map(filename="outmap.txt")
     # puzzle.print_map()
     distinct_new_obstacles = set(puzzle.new_obstacles)
     return len(distinct_new_obstacles)
     # return puzzle.count_non_dots()
 
 
-rprint(f"""test data: {part2(FNAME_TEST)}""")
+# rprint(f"""test data: {part2(FNAME_TEST)}""")
+rprint(f"""test data: {part2("test_data_4.txt")}""")
+
 # rprint(f"""Problem input: {part2(fname)}""")
+
+# Tries:
+# Too low
+# Problem input: 390
+# Problem input: 669
+#
+# Too high
+
+
+# test_data_missing_loop.txt showed that you can turn
+# towards an obstacle that you haven't seen before,
+# and still cause a loop.
+
+# Instead of checking to see if I've seen a new_stop before,
+# See if I've seen the NEXT obstacle after that.
+
+# Also, exit if I enter a loop.
