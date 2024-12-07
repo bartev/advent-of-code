@@ -49,9 +49,49 @@ rprint(Rule("Part 1", style="bold green"))
 rprint(Panel.fit("[bold green]Part 1"))
 
 
+class Position:
+    def __init__(self, row: int, col: int):
+        "A position defined by (row, column)"
+        self.row = row
+        self.col = col
+
+    def to_tuple(self):
+        """Return position as a tuple"""
+        return self.pos
+
+    @property
+    def pos(self):
+        return (self.row, self.col)
+
+    def __add__(self, other):
+        """Add another position or tuple to this position"""
+        if isinstance(other, Position):
+            return Position(self.row + other.row, self.col + other.col)
+        elif isinstance(other, tuple) and len(other) == 2:
+            return Position(self.row + other[0], self.col + other[1])
+        else:
+            raise TypeError("Can only add a Position or a tuple of length 2")
+
+    def __iadd__(self, other):
+        """Inplace addition `+=`"""
+        if isinstance(other, Position):
+            self.row += other.row
+            self.col += other.col
+        elif isinstance(other, tuple) and len(other) == 2:
+            self.row += other[0]
+            self.col += other[1]
+        else:
+            raise TypeError("Can only add a Position or a tuple of length 2")
+
+    def __repr__(self):
+        """Provide a string representation of the position."""
+        return f"Position(row={self.row}, column={self.col})"
+
+
 class Puzzle:
     DIRECTIONS = ["^", ">", "v", "<"]
     OBSTACLE = "#"
+    INCREMENTS = {d: i for d, i in zip(DIRECTIONS, [(-1, 0), (0, 1), (1, 0), (0, -1)])}
 
     def __init__(self, filename: str):
         "docstring"
@@ -62,10 +102,7 @@ class Puzzle:
         self.min_col = 0
         self.max_row = len(self.labmap) - 1
         self.max_col = len(self.labmap[0]) - 1
-        self.stops_up = []
-        self.stops_right = []
-        self.stops_down = []
-        self.stops_left = []
+        self.stops = {direction: [] for direction in self.DIRECTIONS}
         self.counter = 0
         self.new_obstacles = list()
         self.steps = 0
@@ -89,130 +126,23 @@ class Puzzle:
             if guard in row:
                 return row.index(guard)
 
-    def find_guard(self):
+    def find_guard(self) -> Position:
         """Get the guard's position"""
-        return [
+        pos = [
             (idx, self.guard_pos_in_row(line))
             for idx, line in enumerate(self.labmap)
             if self.guard_pos_in_row(line)
         ][0]
+        return Position(*pos)
 
     def init_dir(self):
         """Get the initial direction"""
-        r, c = self.cur_pos
-        return self.labmap[r][c]
-
-    def exiting(self):
-        """True if next step would exit the map"""
-        r, c = self.cur_pos
-        return (
-            (self.cur_dir == "^" and r == self.min_row)
-            or (self.cur_dir == ">" and c == self.max_col)
-            or (self.cur_dir == "v" and r == self.max_row)
-            or (self.cur_dir == "<" and c == self.min_col)
-        )
-
-    def turn(self, direction: str = "right"):
-        """Dont change the direction if exiting"""
-        idx = self.DIRECTIONS.index(self.cur_dir)
-        if self.exiting():
-            new_idx = idx
-        elif direction == "right":
-            new_idx = (idx + 1) % 4
-            self.steps = 0
-        else:
-            raise ValueError(f"Bad direction: {direction}")
-        self.cur_dir = self.DIRECTIONS[new_idx]
-        r, c = self.cur_pos
-        self.labmap[r] = self.replace_char(self.labmap[r], c, ch="+")
-
-    def find_obstacle_up(self):
-        """Return the guard's ending position if traveling up"""
-        r, c = self.cur_pos
-        starting_map = self.labmap.copy()
-        while r > self.min_row and self.labmap[r - 1][c] != self.OBSTACLE:
-            r -= 1
-            starting_map[r] = self.replace_char(starting_map[r], c, ch="|")
-            self.would_make_loop((r, c))
-            self.steps += 1
-            self.all_steps += 1
-        self.labmap = starting_map.copy()
-        self.cur_pos = (r, c)
-        if (r, c) in self.stops_up:
-            raise ValueError(
-                f"I'be been here before! {self.cur_pos=}, {self.cur_dir=}, {self.counter=}"
-            )
-        else:
-            self.stops_up.append((r, c))
-        self.turn()
-        return self.cur_pos
-
-    def find_obstacle_right(self):
-        """Return the guard's ending position if traveling right"""
-        r, c = self.cur_pos
-        starting_map = self.labmap.copy()
-        while c < self.max_col and self.labmap[r][c + 1] != self.OBSTACLE:
-            c += 1
-            starting_map[r] = self.replace_char(starting_map[r], c, ch="-")
-            self.would_make_loop((r, c))
-            self.steps += 1
-            self.all_steps += 1
-        self.labmap = starting_map.copy()
-        self.cur_pos = (r, c)
-        if (r, c) in self.stops_right:
-            raise ValueError(
-                f"I'be been here before! {self.cur_pos=}, {self.cur_dir=}, {self.counter=}"
-            )
-        else:
-            self.stops_up.append((r, c))
-        self.turn()
-        return self.cur_pos
-
-    def find_obstacle_down(self):
-        """Return the guard's ending position if traveling down"""
-        r, c = self.cur_pos
-        starting_map = self.labmap.copy()
-        while r < self.max_row and self.labmap[r + 1][c] != self.OBSTACLE:
-            r += 1
-            starting_map[r] = self.replace_char(starting_map[r], c, ch="|")
-            self.would_make_loop((r, c))
-            self.steps += 1
-            self.all_steps += 1
-        self.labmap = starting_map.copy()
-        self.cur_pos = (r, c)
-        if (r, c) in self.stops_down:
-            raise ValueError(
-                f"I'be been here before! {self.cur_pos=}, {self.cur_dir=}, {self.counter=}"
-            )
-        else:
-            self.stops_up.append((r, c))
-        self.turn()
-        return self.cur_pos
-
-    def find_obstacle_left(self):
-        """Return the guard's ending position if traveling left"""
-        r, c = self.cur_pos
-        starting_map = self.labmap.copy()
-        while c > self.min_col and self.labmap[r][c - 1] != self.OBSTACLE:
-            c -= 1
-            starting_map[r] = self.replace_char(starting_map[r], c, ch="-")
-            self.would_make_loop((r, c))
-            self.steps += 1
-            self.all_steps += 1
-        self.labmap = starting_map.copy()
-        self.cur_pos = (r, c)
-        if (r, c) in self.stops_left:
-            raise ValueError(
-                f"I'be been here before! {self.cur_pos=}, {self.cur_dir=}, {self.counter=} "
-            )
-        else:
-            self.stops_up.append((r, c))
-        self.turn()
-        return self.cur_pos
+        row, col = self.cur_pos.pos
+        return self.labmap[row][col]
 
     def print_map(self):
         printmap = self.labmap.copy()
-        r, c = self.cur_pos
+        r, c = self.cur_pos.pos
         printmap[r] = self.replace_char(printmap[r], c, self.cur_dir)
         if self.new_obstacles:
             o_r, o_c = self.new_obstacles[-1]
@@ -222,11 +152,68 @@ class Puzzle:
             rprint(line)
         print()
 
-    def find_obstacle(self):
-        if self.counter > 0:
-            # self.print_map()
-            # breakpoint()
+    def exiting(self):
+        """True if next step would exit the map"""
+        row, col = self.cur_pos.pos
+        return (
+            (self.cur_dir == "^" and row == self.min_row)
+            or (self.cur_dir == ">" and col == self.max_col)
+            or (self.cur_dir == "v" and row == self.max_row)
+            or (self.cur_dir == "<" and col == self.min_col)
+        )
+
+    def next_dir(self):
+        """Return the next direction (don't change anything)"""
+        idx = self.DIRECTIONS.index(self.cur_dir)
+        new_idx = (idx + 1) % 4
+        return self.DIRECTIONS[new_idx]
+
+    def turn(self, direction: str = "right"):
+        """Update self.cur_dir (only if not exiting)"""
+        if self.exiting():
             pass
+        else:
+            self.cur_dir = self.next_dir()
+        r, c = self.cur_pos.pos
+        self.labmap[r] = self.replace_char(self.labmap[r], c, ch="+")
+
+    def find_obstacle_up(self):
+        """Return the guard's ending position if traveling up"""
+        r, c = self.cur_pos.pos
+        while r > self.min_row and self.labmap[r - 1][c] != self.OBSTACLE:
+            r -= 1
+        return (r, c)
+
+    def find_obstacle_right(self):
+        """Return the guard's ending position if traveling right"""
+        r, c = self.cur_pos.pos
+        while c < self.max_col and self.labmap[r][c + 1] != self.OBSTACLE:
+            c += 1
+        return (r, c)
+
+    def find_obstacle_down(self):
+        """Return the guard's ending position if traveling down"""
+        r, c = self.cur_pos.pos
+        while r < self.max_row and self.labmap[r + 1][c] != self.OBSTACLE:
+            r += 1
+        return (r, c)
+
+    def find_obstacle_left(self):
+        """Return the guard's ending position if traveling left"""
+        r, c = self.cur_pos.pos
+        while c > self.min_col and self.labmap[r][c - 1] != self.OBSTACLE:
+            c -= 1
+        return (r, c)
+
+    def add_obstacle(self, obstacle_pos):
+        if obstacle_pos in self.stops[self.cur_dir]:
+            raise ValueError(
+                f"I've been here before! {obstacle_pos=}, {self.cur_dir=}, {self.counter=}"
+            )
+        else:
+            self.stops[self.cur_dir].append(obstacle_pos)
+
+    def find_obstacle(self):
 
         if self.exiting():
             rprint(f"Exiting (r,c) = {self.cur_pos}, dir={self.cur_dir}")
@@ -243,14 +230,6 @@ class Puzzle:
             raise ValueError(f"invalid direction: {self.cur_dir}")
         if not self.exiting():
             self.counter += 1
-            rprint(
-                Rule(
-                    f"Obstacle {self.counter}, {self.all_steps=}, {self.steps=}, (r,c) = {self.cur_pos}, next dir={self.cur_dir}",
-                    style="bold red",
-                )
-            )
-            rprint(Rule(f"{self.new_obstacles=}"))
-            # self.print_map()
         return end_pos
 
     def count_xs(self):
@@ -325,64 +304,46 @@ class Puzzle:
         if new_obstacle:
             self.new_obstacles.append(new_obstacle)
 
+        return new_obstacle
+
+    def check_for_loop(self, pos: tuple):
+        row, col = pos
+        return (row, col)
+
+    def find_loop_pos(self, start_pos: tuple, end_pos: tuple) -> tuple:
+        """Find a loop position between cur_pos and end_pos"""
+        dir = self.cur_dir
+        lab = self.labmap
+        row, col = start_pos
+        end_row, end_col = end_pos
+        loop_pos = None
+
+        if dir == "^" and end_row <= row:
+            loop_pos = self.check_for_loop((row, col))
+            # Check if there is a block position to the righ
+            # That we've seen
+            if loop_pos:
+                pass
+        return loop_pos
+
 
 @time_it
 def part1(filename: str) -> int:
     """Run part 1 given the input file
     Return value should be the solution"""
     puzzle = Puzzle(filename)
-    # puzzle.print_map()
-    # Test turning
-    # rprint(f"{puzzle.cur_dir=}")
-    # for _ in range(4):
-    #     puzzle.turn()
-    #     rprint(f"turn to {puzzle.cur_dir=}")
-
-    # first_obstacle = puzzle.find_obstacle()
-    # rprint(f"{first_obstacle=}")
-    # puzzle.print_map()
-    # second_obstacle = puzzle.find_obstacle()
-    # rprint(f"{second_obstacle=}")
-    # puzzle.print_map()
-    # third_obstacle = puzzle.find_obstacle()
-    # rprint(f"{third_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
-    # fourth_obstacle = puzzle.find_obstacle()
-    # rprint(f"{fourth_obstacle=}")
-    # puzzle.print_map()
 
     while not puzzle.exiting():
-        puzzle.find_obstacle()
+        end_pos = puzzle.find_obstacle()
 
-    # puzzle.print_map()
     return puzzle.count_non_dots()
 
 
-# rprint(f"""test data: {part1(FNAME_TEST)}""")
-# rprint(f"""Problem input: {part1(fname)}""")
+rprint(f"""test data: {part1(FNAME_TEST)}""")
+rprint(f"""Problem input: {part1(fname)}""")
 
 # ########## Part 2
+
 
 rprint(Rule("Part 2", style="bold red"))
 rprint(Panel.fit("[bold red]Part 2"))
@@ -394,7 +355,9 @@ def part2(filename: str) -> int:
     Return value should be the solution"""
     puzzle = Puzzle(filename)
     while not puzzle.exiting():
-        puzzle.find_obstacle()
+        end_pos = puzzle.find_obstacle()
+        loop_pos = puzzle.find_loop_pos(puzzle.cur_pos, end_pos=end_pos)
+        new_obstacle = puzzle.would_make_loop(end_pos)
 
     # puzzle.print_map()
     rprint(puzzle.new_obstacles)
