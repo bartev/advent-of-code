@@ -92,7 +92,74 @@ Calculate the impact of the signal. How many unique locations within the bounds 
 
 ** Answer
 
+Your puzzle answer was 400.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
 * Part 2
+Watching over your shoulder as you work, one of The Historians asks if you took the effects of resonant harmonics into your calculations.
+
+Whoops!
+
+After updating your model, it turns out that an antinode occurs at any grid position exactly in line with at least two antennas of the same frequency, regardless of distance. This means that some of the new antinodes will occur at the position of each antenna (unless that antenna is the only one of its frequency).
+
+So, these three T-frequency antennas now create many antinodes:
+
+#+begin_example
+T....#....
+...T......
+.T....#...
+.........#
+..#.......
+..........
+...#......
+..........
+....#.....
+..........
+#+end_example
+In fact, the three T-frequency antennas are all exactly in line with two antennas, so they are all also antinodes! This brings the total number of antinodes in the above example to 9.
+
+The original example now has 34 antinodes, including the antinodes that appear on every antenna:
+
+#+begin_example
+##....#....#
+.#.#....0...
+..#.#0....#.
+..##...0....
+....0....#..
+.#...#A....#
+...#..#.....
+#....#.#....
+..#.....A...
+....#....A..
+.#........#.
+...#......##
+#+end_example
+Calculate the impact of the signal using this updated model. How many unique locations within the bounds of the map contain an antinode?
+
 
 ** Answer
+1280
+That's the right answer! You are one gold star closer to finding the Chief Historian.
 
+
+* Final results
+
+#+begin_example
+──────────────────────────────────────────── Part 1 ────────────────────────────────────────────
+╭────────╮
+│ Part 1 │
+╰────────╯
+
+test data: 14
+
+Problem input: 400
+──────────────────────────────────────────── Part 2 ────────────────────────────────────────────
+╭────────╮
+│ Part 2 │
+╰────────╯
+
+test data: 9
+
+Problem input: 1280
+#+end_example

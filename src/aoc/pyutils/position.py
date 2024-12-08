@@ -62,6 +62,23 @@ class Position:
             other = self.from_tuple(other)
         return Position(self.row - other.row, self.col - other.col)
 
+    def __mul__(self, other):
+        """Scalar multiplication (int) or element-wise product (Position)"""
+        if isinstance(other, Position):
+            # dot product
+            res = Position(self.row * other.row, self.col * other.col)
+        elif isinstance(other, int):
+            res = Position(self.row * other, self.col * other)
+        else:
+            raise TypeError("Multiplication only supported for int and Position (dot)")
+        return res
+
+    def dot(self, other) -> int:
+        """Dot product between 2 Positions"""
+        if not isinstance(other, Position):
+            raise TypeError("Dot product is only supported for Position")
+        return self.row * other.row * self.col * other.col
+
     def lt(self, other, direction: tuple[int, int]) -> bool:
         """Compare to positions based on a direction vector.
         Uses a projection on the direction vector."""

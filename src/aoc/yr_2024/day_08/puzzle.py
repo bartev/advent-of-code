@@ -133,12 +133,56 @@ class Puzzle(PuzzleMap):
         yy = Position.from_tuple(y) if isinstance(y, tuple) else y
         return xx + (xx - yy), yy + (yy - xx)
 
-    def find_antinodes_antenna_list(self, antennas: list[Position]) -> list[Position]:
+    def find_antinodes_antenna_extended(
+        self, x: Position, y: Position
+    ) -> list[Position]:
+        """Find the antinodes of x and y, extending to the edge of the grid
+        Includes the 2 nodes themselves
+
+        Given 2 position vectors A and B, get all positions from either A or B
+        that are (B - A) away from A or B (in both directions) and are still
+        inside the grid.
+        """
+        xx = Position.from_tuple(x) if isinstance(x, tuple) else x
+        yy = Position.from_tuple(y) if isinstance(y, tuple) else y
+
+        nodes = [xx, yy]
+
+        def n_away(A: Position, B: Position, n: int):
+            return B + ((B - A) * n)
+
+        # positive direction
+        n = 0
+        next_posit = n_away(xx, yy, n)
+        while self.position_in_grid(next_posit):
+            nodes.append(next_posit)
+            n += 1
+            next_posit = n_away(xx, yy, n)
+        # negative direction
+        n = 0
+        next_posit = n_away(xx, yy, n)
+        while self.position_in_grid(next_posit):
+            nodes.append(next_posit)
+            n -= 1
+            next_posit = n_away(xx, yy, n)
+
+        return nodes
+
+    def find_antinodes_antenna_list(
+        self, antennas: list[Position], extended: bool = False
+    ) -> list[Position]:
         """Find all the antinodes for a list of coordinates"""
-        nested_antinodes = [
-            self.find_antinodes_antenna_pair(x, y)
-            for x, y in self.get_n_combinations(antennas, n=2)
-        ]
+        if extended:
+            nested_antinodes = [
+                self.find_antinodes_antenna_extended(x, y)
+                for x, y in self.get_n_combinations(antennas, n=2)
+            ]
+            pass
+        else:
+            nested_antinodes = [
+                self.find_antinodes_antenna_pair(x, y)
+                for x, y in self.get_n_combinations(antennas, n=2)
+            ]
         antinodes = [pos for items in nested_antinodes for pos in items]
         unique_antinodes = list(set(antinodes))
         sorted_antinodes = Position.sort_positions(unique_antinodes)
@@ -148,11 +192,11 @@ class Puzzle(PuzzleMap):
         """Only keep positions that are within the grid"""
         return [pos for pos in positions if self.position_in_grid(pos)]
 
-    def find_all_antinodes(self):
+    def find_all_antinodes(self, extended: bool = False):
         """Find all the antinodes in the map"""
         coord_dict = self.get_coords_with_counter()
         antinode_dict = {
-            key: self.find_antinodes_antenna_list(coords)
+            key: self.find_antinodes_antenna_list(coords, extended=extended)
             for key, coords in coord_dict.items()
         }
         return antinode_dict
@@ -164,8 +208,8 @@ class Puzzle(PuzzleMap):
             and self.min_col <= pos.col <= self.max_col
         )
 
-    def count_distinct_antinodes(self) -> int:
-        antinodes_dict = self.find_all_antinodes()
+    def count_distinct_antinodes(self, extended: bool = False) -> int:
+        antinodes_dict = self.find_all_antinodes(extended=extended)
         return len(list(set([x for items in antinodes_dict.values() for x in items])))
 
 
@@ -175,8 +219,8 @@ def part1(filename: str) -> int:
     Return value should be the solution"""
     puzzle = Puzzle(filename)
     puzzle.draw_grid("outmap.txt")
-    rprint(puzzle.get_coords_with_counter())
-    rprint(puzzle.find_all_antinodes())
+    # rprint(puzzle.get_coords_with_counter())
+    # rprint(puzzle.find_all_antinodes())
     return puzzle.count_distinct_antinodes()
 
 
@@ -194,19 +238,13 @@ rprint(Panel.fit("[bold red]Part 2"))
 def part2(filename: str) -> int:
     """Run part 2 given the input file
     Return value should be the solution"""
+    puzzle = Puzzle(filename)
+    puzzle.draw_grid("outmap.txt")
+    # rprint(puzzle.get_coords_with_counter())
+    # rprint(puzzle.find_all_antinodes(extended=True))
+    return puzzle.count_distinct_antinodes(extended=True)
 
 
-# ########## Part 2
-
-rprint(Rule("Part 2", style="bold red"))
-rprint(Panel.fit("[bold red]Part 2"))
-
-
-# @time_it
-def part2(filename: str) -> int:
-    """Run part 2 given the input file
-    Return value should be the solution"""
-
-
-rprint(f"""test data: {part2(FNAME_TEST)}""")
-# rprint(f"""Problem input: {part2(fname)}""")
+rprint(f"""test data: {part2("test_data_pt2_1.txt")}""")
+# rprint(f"""test data: {part2(FNAME_TEST)}""")
+rprint(f"""Problem input: {part2(fname)}""")
