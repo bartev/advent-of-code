@@ -75,7 +75,7 @@ class PuzzleMap:
             raise ValueError(f"n ({n}) is out of range")
         return s[:n] + ch + s[n + 1 :]
 
-    def draw_map(
+    def draw_grid(
         self,
         filename: str = None,
         labmap: list[str] = None,
@@ -129,19 +129,26 @@ class Puzzle(PuzzleMap):
 
     def find_antinodes_antenna_pair(self, x: Position, y: Position) -> list[Position]:
         """Find the antinodes of x and y"""
-        xx = Position(*x) if isinstance(tuple, x)
-        return x + (x - y), y + (y - x)
+        xx = Position.from_tuple(x) if isinstance(x, tuple) else x
+        yy = Position.from_tuple(y) if isinstance(y, tuple) else y
+        return xx + (xx - yy), yy + (yy - xx)
 
     def find_antinodes_antenna_list(self, antennas: list[Position]) -> list[Position]:
         """Find all the antinodes for a list of coordinates"""
-        return [
+        nested_antinodes = [
             self.find_antinodes_antenna_pair(x, y)
             for x, y in self.get_n_combinations(antennas, n=2)
         ]
+        antinodes = [pos for items in nested_antinodes for pos in items]
+        unique_antinodes = list(set(antinodes))
+        sorted_antinodes = Position.sort_positions(unique_antinodes)
+        return self.keep_positions_in_grid(sorted_antinodes)
 
-    def find_all_antinodes(
-        self,
-    ):
+    def keep_positions_in_grid(self, positions: list[Position]) -> list[Position]:
+        """Only keep positions that are within the grid"""
+        return [pos for pos in positions if self.position_in_grid(pos)]
+
+    def find_all_antinodes(self):
         """Find all the antinodes in the map"""
         coord_dict = self.get_coords_with_counter()
         antinode_dict = {
@@ -150,18 +157,44 @@ class Puzzle(PuzzleMap):
         }
         return antinode_dict
 
+    def position_in_grid(self, pos: Position) -> bool:
+        """True if the position is within the grid boundries"""
+        return (
+            self.min_row <= pos.row <= self.max_row
+            and self.min_col <= pos.col <= self.max_col
+        )
+
+    def count_distinct_antinodes(self) -> int:
+        antinodes_dict = self.find_all_antinodes()
+        return len(list(set([x for items in antinodes_dict.values() for x in items])))
+
 
 # @time_it
 def part1(filename: str) -> int:
     """Run part 1 given the input file
     Return value should be the solution"""
     puzzle = Puzzle(filename)
-    puzzle.draw_map()
+    puzzle.draw_grid("outmap.txt")
+    rprint(puzzle.get_coords_with_counter())
     rprint(puzzle.find_all_antinodes())
+    return puzzle.count_distinct_antinodes()
 
 
-rprint(f"""test data: {part1(FNAME_TEST)}""")
-# rprint(f"""Problem input: {part1(fname)}""")
+rprint(f"""test data: {part1('test_data_5.txt')}""")
+# rprint(f"""test data: {part1(FNAME_TEST)}""")
+rprint(f"""Problem input: {part1(fname)}""")
+
+# ########## Part 2
+
+rprint(Rule("Part 2", style="bold red"))
+rprint(Panel.fit("[bold red]Part 2"))
+
+
+# @time_it
+def part2(filename: str) -> int:
+    """Run part 2 given the input file
+    Return value should be the solution"""
+
 
 # ########## Part 2
 
