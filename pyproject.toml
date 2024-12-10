@@ -25,3 +25,17 @@ dependencies = [
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.pylint]
+disable = [
+  "W1203", # Ignore logging-fstring-interpolation
+  "C0114", # Disable docstring warnings module
+  "C0115", # Disable docstring warnings class
+  "C0116", # Disable docstring warnings function
+  "R1732", # Disable warning for not specifying encoding
+]
+
+[tool.flake8]
+ignore = [
+  "E501", # Line too long
+]

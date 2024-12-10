@@ -31,6 +31,7 @@ from rich.logging import RichHandler
 from rich.panel import Panel
 from rich.rule import Rule
 
+from aoc.pyutils.position import Position
 from aoc.pyutils.utils import time_it
 
 # Set up basic config for logging
@@ -401,7 +402,7 @@ class Puzzle:
         logger.debug(f"starting from {posit}, {direc}")
         loop_found = False
         start_pos = posit
-        breakpoint()
+        # breakpoint()
 
         MAX_ITER = 500
         counter = 0

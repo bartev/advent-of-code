@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import logging
-from collections import deque, namedtuple
 from pathlib import Path
 
 from rich import print as rprint
@@ -65,6 +64,34 @@ class Block:
         indices = [self.index] * to_return
         self.length -= to_return
         return {"indices": indices, "needed": needed}
+
+    def split_block(self, length_needed: int) -> list:
+        """Split into a block of length: length_needed, and remainder
+        for_head will be up to length_needed, with 0 spaces
+        for_tail will be the original length - length_needed (no spaces since last block)
+
+        Ex.
+        need 10
+        have 4
+        still need 6 (max(0, 10-4))
+        remain = 0 (max(0, 4-10))
+
+        """
+        still_needed = max(0, length_needed - self.length)
+        remaining_in_tail = max(0, self.length - length_needed)
+        length_fulfilled = min(length_needed, self.length)
+
+        # rprint(self)
+        # rprint(f"{still_needed=}, {remaining_in_tail=}, {length_fulfilled=}")
+
+        for_head = (
+            Block(self.index, length_fulfilled, 0) if length_fulfilled > 0 else None
+        )
+        for_tail = (
+            Block(self.index, remaining_in_tail, 0) if remaining_in_tail > 0 else None
+        )
+        # still_needed
+        return for_head, for_tail, still_needed
 
 
 # ########## Part 1
@@ -146,10 +173,10 @@ def get_hash(xs: list[int]):
     """Return the hash
     sum(idx * value)
     """
-    return sum([idx * val for idx, val in enumerate(xs)])
+    return sum(idx * val for (idx, val) in enumerate(xs))
 
 
-def fill_spaces(blocks: deque) -> list:
+def fill_spaces(blocks: list) -> list:
     """Fill disk_map spaces with indices from the last block in the list"""
     d_map = []
     # d_map, blocks = add_next_block(d_map, blocks)
@@ -178,15 +205,89 @@ def fill_spaces(blocks: deque) -> list:
     return d_map
 
 
+def fill_spaces_2(blocks: list[Block]):
+    """Take block 1, breakup last block if needed, append after block 1, keep other at end"""
+    results_list = []
+
+    # initialize the loop
+    idx = 0
+    len_blks = len(blocks)
+    cur_block = blocks[idx]
+    rest_blocks = blocks[idx + 1 :]
+    results_list.append(cur_block)
+    counter = 0
+    # breakpoint()
+
+    while idx < len_blks:
+        # rprint(f"{counter=}, {idx=}")
+        # rprint(blocks)
+        if rest_blocks:
+            needed = cur_block.spaces
+            last_block = blocks[-1]
+            for_head, for_tail, still_needed = last_block.split_block(needed)
+            # rprint(f"{needed=}, {still_needed=}, {for_head=}, {for_tail=}")
+            if for_head:
+                results_list.append(for_head)
+            # breakpoint()
+            blocks = blocks[:-1]
+
+            if for_tail:
+                blocks.append(for_tail)  # replace the last block
+            rest_blocks = blocks[idx + 1 :]
+
+            cur_block.spaces = still_needed
+
+            if still_needed == 0:
+                idx += 1
+                if idx >= len(blocks):
+                    break
+                cur_block = blocks[idx]
+                results_list.append(cur_block)
+
+        else:
+            # breakpoint()
+            break
+        # if idx >= len_blks:
+        #     breakpoint()
+
+        counter += 1
+    return results_list
+
+
+def convert_to_list(blocks: list[Block]) -> list[int]:
+    res = []
+    for block in blocks:
+        _id = block.index
+        length = block.length
+        res = res + [_id] * length
+    return res
+
+
+def get_hash_2(blocks: list[Block]):
+    id_list = convert_to_list(blocks)
+    return get_hash(id_list)
+
+
 @time_it
 def part1(filename: str) -> int:
     """Run part 1 given the input file
     Return value should be the solution"""
-    blocks = read_data(filename)
-    # rprint(blocks)
-    indices = fill_spaces(blocks)
-    # rprint(pretty_str(indices))
-    return get_hash(indices)
+
+    # This 1st way works for the test set, but not the actual data.
+    if false:
+        blocks1 = read_data(filename)
+        # rprint(blocks1)
+        indices1 = fill_spaces(blocks1)
+        # rprint(indices1)
+        rprint(get_hash(indices1))
+
+    if true:
+        rprint(Panel.fit("[bold blue]Part 1b"))
+        blocks2 = read_data(filename)
+        # rprint(blocks)
+        indices2 = fill_spaces_2(blocks2)
+        # rprint(f"{indices2=}")
+        rprint(get_hash_2(indices2))
 
 
 rprint(f"""test data: {part1(FNAME_TEST)}""")
