@@ -225,10 +225,10 @@ rprint(f"""Problem input: {part2(fname, blinks=35)}""")
 
 # explore3(blinks=5)
 
-# cProfile.run("part2(fname, blinks=75)", "profile_output")
+cProfile.run("part2(fname, blinks=35)", "profile_output")
 # Display the results
-# with open("profile_results.txt", "w") as f:
-#     stats = pstats.Stats("profile_output", stream=f)
-#     stats.strip_dirs()
-#     stats.sort_stats("cumulative")
-#     stats.print_stats()
+with open("profile_results.txt", "w") as f:
+    stats = pstats.Stats("profile_output", stream=f)
+    stats.strip_dirs()
+    stats.sort_stats("cumulative")
+    stats.print_stats()
