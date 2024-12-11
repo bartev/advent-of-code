@@ -71,9 +71,18 @@ class Grid:
     def positions_within_dist(self, row_start, col_start, distance: int):
         """Return all points within  manhattan distance from start"""
         points = []
-        for row in range(self.rows):
-            for col in range(self.cols):
+        # Don't search the entir grid every time
+        row_min = max(0, row_start - distance)
+        row_max = min(row_start + distance, self.rows - 1)
+        col_min = max(0, col_start - distance)
+        col_max = min(col_start + distance, self.cols - 1)
+        # breakpoint()
+
+        for row in range(row_min, row_max + 1):
+            for col in range(col_min, col_max + 1):
                 dist = self.manhattan_distance(row_start, col_start, row, col)
+                # rprint(f"{row=}, {col=}, {dist=}, {distance=}")
                 if dist <= distance and not (row == row_start and col == col_start):
+                    # rprint("appending {row, col}")
                     points.append((row, col))
         return points
