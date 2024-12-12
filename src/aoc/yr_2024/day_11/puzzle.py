@@ -66,51 +66,10 @@ class Puzzle:
                 return result
         return None
 
-    def blink_5_single(self, stone):
-        # print(f"{stone=}")
-        stones_1 = [self.apply_first_rule(st) for st in [stone]]
-        # print(f"{stones_1=}")
-        stones_2 = [self.apply_first_rule(st) for st in flatten(stones_1)]
-        stones_3 = [self.apply_first_rule(st) for st in flatten(stones_2)]
-        stones_4 = [self.apply_first_rule(st) for st in flatten(stones_3)]
-        stones_5 = [self.apply_first_rule(st) for st in flatten(stones_4)]
-        return flatten(stones_5)
-
-    def blink_5(self):
-        new_stones = [self.blink_5_single(stone) for stone in self.stones]
-        self.stones = flatten(new_stones)
-        return self.stones
-
     def blink(self):
         new_stones = [self.apply_first_rule(stone) for stone in self.stones]
         self.stones = flatten(new_stones)
         return self.stones
-
-    def blinkr(self, stones: list[int], blinks: int = 0) -> int:
-        """Count how many stones are there after blinking `blinks` times
-        Uses a recursive algorithm
-        """
-
-        # @lru_cache(maxsize=None)  # Cache unlimited results
-        def helper(xs: list[int], acc: int = 0) -> int:
-            """Recursive function with accumulator to track blinks left"""
-            # rprint(f"{acc=}, {xs=}")
-            # breakpoint()
-            if not xs:
-                res = 0
-            if acc >= blinks:
-                res = len(xs)
-            else:  #  acc < blinks
-                to_operate_on = [self.apply_first_rule(stone=y) for y in xs]
-                # rprint(f"{to_operate_on=}")
-                # breakpoint()
-                res = sum([helper(y, acc + 1) for y in to_operate_on])
-
-            return res
-
-        answer = helper([stones], acc=0)
-
-        return answer
 
     def blink_n(self, stones: list[int], blinks: int = 0):
         """Solve this with O(blinks). Use a Counter with stone values
@@ -176,10 +135,8 @@ def part1(filename: str, blinks: int = 1) -> int:
 
 
 # rprint(f"""test data: {part1(FNAME_TEST)}""")
-rprint(f"""test data: {part1('test_data_2.txt', blinks=6)}""")
+rprint(f"""Problem input: {part1(fname, blinks=25)}""")
 
-# rprint(f"""Problem input: {part1(fname, blinks=25)}""")
-# rprint(f"""Problem input: {part1(fname, blinks=35)}""")
 
 # ########## Part 2
 
@@ -193,45 +150,34 @@ def part2(filename: str = None, stones: list[int] = None, blinks: int = 1) -> in
     Return value should be the solution"""
     stones = read_data(filename) if filename else stones
     puzzle = Puzzle(stones)
-    # answers = [puzzle.blinkr(stone, blinks=blinks) for stone in stones]
-    answers = puzzle.blink_n(stones, blinks=blinks)
-    return answers
+    return puzzle.blink_n(stones, blinks=blinks)
 
-
-stones = []
-blinks = 0
-rprint(Panel.fit(f"[bold red]{blinks=}, {stones=}"))
-rprint(part2(stones=stones, blinks=blinks))
-
-stones = [0]
-blinks = 75
-rprint(Panel.fit(f"[bold red]{blinks=}, {stones=}"))
-rprint(part2(stones=stones, blinks=blinks))
-
-
-# rprint(f"""test input: {part2(filename=FNAME_TEST, blinks=1)}""")
-# rprint(f"""test input: {part2(filename="test_data_2.txt", blinks=6)}""")
 
 rprint(f"""25 blinks: {part2(fname, blinks=25)}""")
 rprint(f"""75 blinks: {part2(fname, blinks=75)}""")
-rprint(f"""250 blinks: {part2(fname, blinks=250)}""")
-rprint(f"""500 blinks: {part2(fname, blinks=500)}""")
 
 
-def profiling():
-    blinks = 45
-    cProfile.run("part2(fname, blinks=blinks)", "profile_output_2")
+def profile_1():
+    rprint("Run part 1 25 blinks")
+    cProfile.run("part1(fname, blinks=25)", "profile_output_1")
     # Display the results
-    with open("profile_results_2.txt", "w") as f:
+    with open("profile_results_1.txt", "w", encoding="utf8") as f:
+        stats = pstats.Stats("profile_output_1", stream=f)
+        stats.strip_dirs()
+        stats.sort_stats("cumulative")
+        stats.print_stats()
+
+
+def profile_2():
+    rprint("Run part 2 25 blinks")
+    cProfile.run("part2(fname, blinks=25)", "profile_output_2")
+    # Display the results
+    with open("profile_results_2.txt", "w", encoding="utf8") as f:
         stats = pstats.Stats("profile_output_2", stream=f)
         stats.strip_dirs()
         stats.sort_stats("cumulative")
         stats.print_stats()
 
-    cProfile.run("part1(fname, blinks=blinks)", "profile_output_1")
-    # Display the results
-    with open("profile_results_1.txt", "w") as f:
-        stats = pstats.Stats("profile_output_1", stream=f)
-        stats.strip_dirs()
-        stats.sort_stats("cumulative")
-        stats.print_stats()
+
+profile_1()
+profile_2()

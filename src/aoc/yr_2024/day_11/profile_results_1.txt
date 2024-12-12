@@ -1,0 +1,40 @@
+Wed Dec 11 22:47:01 2024    profile_output_1
+
+         2154202 function calls (1798153 primitive calls) in 0.190 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.190    0.190 {built-in method builtins.exec}
+        1    0.000    0.000    0.190    0.190 <string>:1(<module>)
+        1    0.000    0.000    0.190    0.190 utils.py:21(wrapper)
+        1    0.000    0.000    0.190    0.190 puzzle.py:126(part1)
+       25    0.000    0.000    0.189    0.008 puzzle.py:69(blink)
+356074/25    0.132    0.000    0.170    0.007 utils.py:31(flatten)
+   895710    0.019    0.000    0.019    0.000 {built-in method builtins.isinstance}
+       25    0.017    0.001    0.019    0.001 puzzle.py:70(<listcomp>)
+   539661    0.012    0.000    0.012    0.000 {method 'append' of 'list' objects}
+   356049    0.008    0.000    0.008    0.000 {method 'extend' of 'list' objects}
+     1495    0.001    0.000    0.001    0.000 puzzle.py:59(apply_first_rule)
+     1494    0.000    0.000    0.000    0.000 puzzle.py:46(rule_even_digits)
+     1495    0.000    0.000    0.000    0.000 puzzle.py:42(rule_0_1)
+      658    0.000    0.000    0.000    0.000 puzzle.py:55(rule_other_2024)
+        1    0.000    0.000    0.000    0.000 puzzle.py:28(read_data)
+     1495    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.print}
+        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.TextIOWrapper' objects}
+        1    0.000    0.000    0.000    0.000 pathlib.py:631(__fspath__)
+        1    0.000    0.000    0.000    0.000 {method '__exit__' of '_io._IOBase' objects}
+        1    0.000    0.000    0.000    0.000 codecs.py:319(decode)
+        1    0.000    0.000    0.000    0.000 puzzle.py:31(<listcomp>)
+        1    0.000    0.000    0.000    0.000 codecs.py:309(__init__)
+        1    0.000    0.000    0.000    0.000 pathlib.py:621(__str__)
+        1    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method _codecs.utf_8_decode}
+        1    0.000    0.000    0.000    0.000 codecs.py:260(__init__)
+        2    0.000    0.000    0.000    0.000 {built-in method time.perf_counter}
+        1    0.000    0.000    0.000    0.000 puzzle.py:38(__init__)
+
+
