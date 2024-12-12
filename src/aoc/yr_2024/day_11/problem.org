@@ -73,5 +73,33 @@ Problem input: 183620
 
 
 * Part 2
+Now run it for 75 blinks.
+
+The solution to part 2 took some thinking.
+
+Keep the number of calculations to a minimum.
+
+At each step, only do the minimum number of blink calculations.
+
+Once I figured that out, it went from a O(2^blinks) problem, to a O(blinks) problem.
+
+Timing examples:
+
+#+begin_example
+part2 took 0.0019 seconds to run
+25 blinks: 183620
+
+part2 took 0.0381 seconds to run
+75 blinks: 220377651399268
+
+part2 took 0.2350 seconds to run
+250 blinks: 12943914805171517430025138039028471156506439458
+
+part2 took 0.5179 seconds to run
+500 blinks: 31348633626390160047571586061652719103657974034421681962543659729956010978577303349932369949
+#+end_example
+
+Otherwise, around 45 blinks in, it started taking forever, and may never have made it to 75 blinks.
 
 ** Answer
+220377651399268

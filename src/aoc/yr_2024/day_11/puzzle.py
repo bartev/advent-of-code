@@ -3,6 +3,7 @@
 import cProfile
 import logging
 import pstats
+from collections import Counter, defaultdict
 from functools import lru_cache
 from pathlib import Path
 
@@ -90,6 +91,7 @@ class Puzzle:
         Uses a recursive algorithm
         """
 
+        # @lru_cache(maxsize=None)  # Cache unlimited results
         def helper(xs: list[int], acc: int = 0) -> int:
             """Recursive function with accumulator to track blinks left"""
             # rprint(f"{acc=}, {xs=}")
@@ -110,6 +112,51 @@ class Puzzle:
 
         return answer
 
+    def blink_n(self, stones: list[int], blinks: int = 0):
+        """Solve this with O(blinks). Use a Counter with stone values
+        as the keys, and the number of times they appear as the values.
+        """
+
+        def helper(stone_ctr: dict, acc: int = 0) -> Counter:
+            """xs is a dict with stones as keys, and count of stones as values"""
+            # breakpoint()
+
+            if not stone_ctr:
+                # should never happen except for degenerate case of empty dict
+                res = Counter()
+            elif acc >= blinks:  # stopping condition
+                res = stone_ctr
+            else:  # recurse acc < blinks
+                # We have 2 dictionaries
+                # INPUT:             stone_ctr:      {stone : num_instances}
+                # INTERMEDIATE_STEP: stones_xformed: {stone : blink(stone)}
+                # RESULT:            output:         {blink(stone) : num_instances}
+
+                output = defaultdict(int)
+                # Apply blink to every key in stone_ctr, keeping track of the
+                # stone, and its transformation
+                stones_xformed = {
+                    stone: self.apply_first_rule(stone) for stone in stone_ctr
+                }
+
+                for stone, xforms in stones_xformed.items():
+                    for new_stone in xforms:  # xforms are lists of len 1 or 2
+                        # How many times was this stone in the original list?
+                        # Keep track so we can count correctly going forward
+                        to_add = stone_ctr.get(stone, 1)
+                        # If a stone showed up multiple times in stones_xformed,
+                        # we add stone_ctr[stone] to the output that many times
+                        # via the loop. No need to multiply
+                        output[new_stone] += to_add
+                res = helper(output, acc + 1)
+            return Counter(res)
+
+        # Start with a Counter {stone: num_instances}
+        stone_counter = Counter(stones)
+        final_counter = helper(stone_counter, acc=0)
+
+        return final_counter.total()
+
 
 # ########## Part 1
 
@@ -128,11 +175,11 @@ def part1(filename: str, blinks: int = 1) -> int:
     return len(puzzle.stones)
 
 
-rprint(f"""test data: {part1(FNAME_TEST)}""")
+# rprint(f"""test data: {part1(FNAME_TEST)}""")
 rprint(f"""test data: {part1('test_data_2.txt', blinks=6)}""")
 
-rprint(f"""Problem input: {part1(fname, blinks=25)}""")
-rprint(f"""Problem input: {part1(fname, blinks=35)}""")
+# rprint(f"""Problem input: {part1(fname, blinks=25)}""")
+# rprint(f"""Problem input: {part1(fname, blinks=35)}""")
 
 # ########## Part 2
 
@@ -140,95 +187,51 @@ rprint(Rule("Part 2", style="bold red"))
 rprint(Panel.fit("[bold red]Part 2"))
 
 
-# def explore():
-#     """EDA"""
-#     for i in range(1):
-#         stones = [i]
-#         puzzle = Puzzle(stones)
-#         rprint(Panel.fit(f"[bold red]Stones = {stones}"))
-#         rprint(f"0: {stones}")
-#         blink_counter = 1
-#         cur_blink = puzzle.blink()
-#         rprint(f"{blink_counter}: {cur_blink}")
-#         while i not in cur_blink:
-#             blink_counter += 1
-#             cur_blink = puzzle.blink()
-#             rprint(f"{blink_counter}: {cur_blink}")
-#         rprint(
-#             Panel.fit(
-#                 f"[yellow] Starting stones = {stones}. {blink_counter} blinks to see starting stone"
-#             )
-#         )
-
-
-# @time_it
-# def explore2(blinks: int = 1):
-#     """EDA"""
-#     for start_stone in range(10):
-#         stones = [start_stone]
-#         puzzle = Puzzle(stones)
-#         rprint(Panel.fit(f"[bold red]Stones = {stones}"))
-#         rprint(f"0: {stones}")
-#         for blink_counter in range(blinks):
-#             cur_blink = puzzle.blink()
-#             rprint(f"{blink_counter}: {cur_blink}")
-
-
-# @time_it
-# def explore3(blinks: int = 5):
-#     """EDA"""
-#     for start_stone in range(10):
-#         stones = [start_stone]
-#         puzzle = Puzzle(stones)
-#         rprint(Panel.fit(f"[bold red]Stones = {stones}"))
-#         rprint(f"0: {stones}")
-#         cur_blink = puzzle.blink_5_single(start_stone)
-#         rprint(f"{cur_blink=}")
-
-
 @time_it
 def part2(filename: str = None, stones: list[int] = None, blinks: int = 1) -> int:
     """Run part 2 given the input file
     Return value should be the solution"""
-    # stones = [0]
     stones = read_data(filename) if filename else stones
-    # rprint(f"{blinks=}, {stones=}")
     puzzle = Puzzle(stones)
-    # rprint(f"0: {stones}")
-    # for i in range(8):
-    #     print(f"blink count: {i}")
-    #     puzzle.blink_5()
-    #     # cur_blink = puzzle.blink()
-    #     # rprint(f"{i + 1}: {cur_blink}")
-    # return len(puzzle.stones)
-    answers = [puzzle.blinkr(stone, blinks=blinks) for stone in stones]
-    return sum(answers)
+    # answers = [puzzle.blinkr(stone, blinks=blinks) for stone in stones]
+    answers = puzzle.blink_n(stones, blinks=blinks)
+    return answers
 
 
-# for blink in range(2):
-#     rprint(f"""part 2 : {part2('test_data_empty.txt', blinks=blink)}""")
+stones = []
+blinks = 0
+rprint(Panel.fit(f"[bold red]{blinks=}, {stones=}"))
+rprint(part2(stones=stones, blinks=blinks))
 
-# for blinks in range(4):
-#     rprint(Panel.fit(f"""part 2: {part2(stones=[], blinks = blinks)}"""))
-#     rprint(Panel.fit(f"""part 2: {part2(stones=[0], blinks = blinks)}"""))
+stones = [0]
+blinks = 75
+rprint(Panel.fit(f"[bold red]{blinks=}, {stones=}"))
+rprint(part2(stones=stones, blinks=blinks))
 
-# for blinks in range(7):
-#     rprint(Panel.fit(f"""part 2: {part2(stones=[0], blinks = blinks)}"""))
 
-rprint(f"""test input: {part2(filename=FNAME_TEST, blinks=1)}""")
-rprint(f"""test input: {part2(filename="test_data_2.txt", blinks=6)}""")
-rprint(f"""Problem input: {part2(fname, blinks=25)}""")
-rprint(f"""Problem input: {part2(fname, blinks=35)}""")
+# rprint(f"""test input: {part2(filename=FNAME_TEST, blinks=1)}""")
+# rprint(f"""test input: {part2(filename="test_data_2.txt", blinks=6)}""")
 
-# explore()
-# explore2(blinks=5)
+rprint(f"""25 blinks: {part2(fname, blinks=25)}""")
+rprint(f"""75 blinks: {part2(fname, blinks=75)}""")
+rprint(f"""250 blinks: {part2(fname, blinks=250)}""")
+rprint(f"""500 blinks: {part2(fname, blinks=500)}""")
 
-# explore3(blinks=5)
 
-cProfile.run("part2(fname, blinks=35)", "profile_output")
-# Display the results
-with open("profile_results.txt", "w") as f:
-    stats = pstats.Stats("profile_output", stream=f)
-    stats.strip_dirs()
-    stats.sort_stats("cumulative")
-    stats.print_stats()
+def profiling():
+    blinks = 45
+    cProfile.run("part2(fname, blinks=blinks)", "profile_output_2")
+    # Display the results
+    with open("profile_results_2.txt", "w") as f:
+        stats = pstats.Stats("profile_output_2", stream=f)
+        stats.strip_dirs()
+        stats.sort_stats("cumulative")
+        stats.print_stats()
+
+    cProfile.run("part1(fname, blinks=blinks)", "profile_output_1")
+    # Display the results
+    with open("profile_results_1.txt", "w") as f:
+        stats = pstats.Stats("profile_output_1", stream=f)
+        stats.strip_dirs()
+        stats.sort_stats("cumulative")
+        stats.print_stats()
