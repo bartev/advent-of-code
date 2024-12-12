@@ -90,7 +90,7 @@
 
 (defn- source-py-path [y d] (format "src/aoc/yr_%s/day_%s/puzzle.py"      y (zero-pad-str d)))
 (defn- test-py-path   [y d] (format "src/aoc/yr_%s/day_%s/puzzle_test.py" y (zero-pad-str d)))
-(defn- problem-path   [y d] (format "src/aoc/yr_%s/day_%s/problem.org"    y (zero-pad-str d)))
+(defn- readme-path   [y d] (format "src/aoc/yr_%s/day_%s/readme.org"    y (zero-pad-str d)))
 (defn- test-data-path [y d] (format "src/aoc/yr_%s/day_%s/test_data.txt"  y (zero-pad-str d)))
 
 ;; => "src/aoc/2023/d07.clj"
@@ -107,7 +107,7 @@
                    :test "templates/test.clj"
                    :src-py "templates/src.py"
                    :test-py "templates/test.py"
-                   :problem "templates/problem.org"
+                   :readme "templates/readme.org"
                    :test-data "templates/test_data.txt"
                    )
         file-function (condp = template-type
@@ -115,7 +115,7 @@
                         :test test-path
                         :src-py source-py-path
                         :test-py test-py-path
-                        :problem problem-path
+                        :readme readme-path
                         :test-data test-data-path)
         fname (file-function year day)]
     (do
@@ -136,7 +136,7 @@
     ;; (create-new-file :src y d)
     ;; (create-new-file :test y d)
     (create-new-file :src-py y d)
-    (create-new-file :problem y d)
+    (create-new-file :readme y d)
     (create-new-file :test-data y d)
     ;; (create-new-file :test-py y d)
     ))
