@@ -134,3 +134,4 @@ The transformation above is equivalent to the sequence transformation
   #+end_src
 *** Remember regex syntax
 - 2024 day 3, to find all matches and groups
+*** Use profiling to see what's taking so long (see 2024 day 11)

@@ -26,3 +26,16 @@ def time_it(func):
         return result
 
     return wrapper
+
+
+def flatten(lst: list[list]) -> list:
+    """Flatten a list with mixed scalars and lists
+    Recursive approach"""
+
+    result = []
+    for item in lst:
+        if isinstance(item, list):
+            result.extend(flatten(item))  # recursively flatten
+        else:
+            result.append(item)  # Add scalar item directly
+    return result
