@@ -92,4 +92,4 @@ class Position:
 
     def __repr__(self):
         """Provide a string representation of the position."""
-        return f"Position(row={self.row}, column={self.col})"
+        return f"Position(row={self.row}, col={self.col})"
