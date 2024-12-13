@@ -138,7 +138,7 @@
     (create-new-file :src-py y d)
     (create-new-file :readme y d)
     (create-new-file :test-data y d)
-    ;; (create-new-file :test-py y d)
+    (create-new-file :test-py y d)
     ))
 
 ;; Header is slightly different. Does this matter?

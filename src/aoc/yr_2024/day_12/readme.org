@@ -165,3 +165,5 @@ What is the new total price of fencing all regions on your map?
 
 
 ** Answer
+
+902742

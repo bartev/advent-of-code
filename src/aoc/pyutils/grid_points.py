@@ -188,7 +188,7 @@ class Grid:
         for point in points:
             row_start, col_start = point
             cols_in_row = [col for (row, col) in region if row == row_start]
-            cols_to_drop = find_continuous_values_ge(cols_in_row, row_start)
+            cols_to_drop = find_continuous_values_ge(col_start, cols_in_row)
             for col in cols_to_drop:
                 res_region.discard((row_start, col))
         return res_region
@@ -218,7 +218,7 @@ class Grid:
             row_start, col_start = point
             cols_in_row = [col for (row, col) in region if row == row_start]
             # Note the different direction from right (le vs ge)
-            cols_to_drop = find_continuous_values_le(cols_in_row, row_start)
+            cols_to_drop = find_continuous_values_le(col_start, cols_in_row)
             for col in cols_to_drop:
                 res_region.discard((row_start, col))
         return res_region

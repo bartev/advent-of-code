@@ -72,7 +72,6 @@ def find_continuous_values(lst: list[int], increasing: bool = True) -> list[list
 
     xs = sorted(lst, reverse=not increasing)
     incr = 1 if increasing else -1
-
     current_group = [xs[0]]
     for i in range(1, len(xs)):
         if xs[i] == xs[i - 1] + incr:  # incr is either +/- 1
