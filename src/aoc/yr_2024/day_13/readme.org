@@ -66,6 +66,32 @@ Your puzzle answer was 29023.
 
 The first half of this puzzle is complete! It provides one gold star: *
 
+With the faster solution (using remainders), part 1 is pretty fast
+
+#+begin_example
+──────────────────────────────────────────────────────────────────────────────────────────── Part  ────────────────────────────────────────────────────────────────────────────────────────────
+╭───────╮
+│ Part  │
+╰───────╯
+part1 took 0.0003 seconds to run
+test data: 480
+part1 took 0.0179 seconds to run
+Problem input: 29023
+#+end_example
+
+The original solution (slower, brute force) took MUCH longer
+
+#+begin_example
+╭───────╮
+│ Part  │
+╰───────╯
+part1 took 0.0504 seconds to run
+test data: 480
+part1 took 4.0687 seconds to run
+Problem input: 29023
+#+end_example
+
+
 * Part 2
 The first half of this puzzle is complete! It provides one gold star: *
 
@@ -95,4 +121,6 @@ Now, it is only possible to win a prize on the second and fourth claw machines. 
 Using the corrected prize coordinates, figure out how to win as many prizes as possible. What is the fewest tokens you would have to spend to win all possible prizes?
 
 
+
+Part 2 is another algorithm problem. How do we find this with such large numbers.
 ** Answer

@@ -112,6 +112,54 @@ def find_all_move_combos(machine: Machine) -> Moves:
     return valid_combos
 
 
+def find_all_move_combos_faster(machine: Machine) -> int:
+    """Loop over 1 variable, check if remainder is a multiple
+    Go along A first, and stop at first value.
+    Fewer A and more B will be less expensive
+    """
+    A, B, D = machine
+    a_max = max(D.row // A.row, D.col // A.col) + 1
+    # b_max = min(D.row // B.row, D.col // B.col) + 1
+
+    results = None
+    for a in range(a_max):
+        remainder = D - A * a
+        if remainder.col < 0 or remainder.row < 0:
+            break
+
+        if remainder.row % B.row == 0 and remainder.col % B.col == 0:
+            b1 = remainder.row // B.row
+            b2 = remainder.col // B.col
+            if b1 == b2:
+                results = (a, b1)
+                break
+    return [results]
+
+
+def find_machine_costs_faster(machine: Machine) -> int:
+    """Loop over 1 variable, check if remainder is a multiple
+    Go along A first, and stop at first value.
+    Fewer A and more B will be less expensive
+    """
+    A, B, D = machine
+    a_max = max(D.row // A.row, D.col // A.col) + 1
+    # b_max = min(D.row // B.row, D.col // B.col) + 1
+
+    results = 0
+    for a in range(a_max):
+        remainder = D - A * a
+        if remainder.col < 0 or remainder.row < 0:
+            break
+
+        if remainder.row % B.row == 0 and remainder.col % B.col == 0:
+            b1 = remainder.row // B.row
+            b2 = remainder.col // B.col
+            if b1 == b2:
+                results = cost_per_combo((a, b1))
+                break
+    return results
+
+
 def cost_per_combo(move: Move) -> int:
     """a costs 3, b costs 1"""
     a, b = move
@@ -121,6 +169,7 @@ def cost_per_combo(move: Move) -> int:
 def cheapest_move_cost(machine) -> int:
     """Cost of the cheapest move for a machine (or None)"""
     moves = find_all_move_combos(machine)
+    # moves = find_all_move_combos_faster(machine)
     costs = [cost_per_combo(move) for move in moves if move]
     return min(costs) if costs else None
 
@@ -161,11 +210,11 @@ def part2(filename: str) -> int:
     machines = read_data(filename)
     # mach_combos = [find_all_move_combos(machine) for machine in machines]
     modified_d_machines = [modify_d(machine) for machine in machines]
-    mach_costs = [cheapest_move_cost(machine) for machine in modified_d_machines]
+    mach_costs = [find_machine_costs_faster(machine) for machine in modified_d_machines]
 
     # return len(mach_combos), len(mach_costs), len(machines)
     return sum(cost for cost in mach_costs if cost)
 
 
 # rprint(f"""test data: {part2(FNAME_TEST)}""")
-rprint(f"""Problem input: {part2(fname)}""")
+# rprint(f"""Problem input: {part2(fname)}""")
