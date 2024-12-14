@@ -90,8 +90,9 @@
 
 (defn- source-py-path [y d] (format "src/aoc/yr_%s/day_%s/puzzle.py"      y (zero-pad-str d)))
 (defn- test-py-path   [y d] (format "src/aoc/yr_%s/day_%s/puzzle_test.py" y (zero-pad-str d)))
-(defn- readme-path   [y d] (format "src/aoc/yr_%s/day_%s/readme.org"    y (zero-pad-str d)))
+(defn- readme-path    [y d] (format "src/aoc/yr_%s/day_%s/readme.org"     y (zero-pad-str d)))
 (defn- test-data-path [y d] (format "src/aoc/yr_%s/day_%s/test_data.txt"  y (zero-pad-str d)))
+(defn- init-py-path   [y d] (format "src/aoc/yr_%s/day_%s/__init__.py"    y (zero-pad-str d)))
 
 ;; => "src/aoc/2023/d07.clj"
 #_(source-path 2023 7)
@@ -109,6 +110,7 @@
                    :test-py "templates/test.py"
                    :readme "templates/readme.org"
                    :test-data "templates/test_data.txt"
+                   :init-py "templates/__init__.py"
                    )
         file-function (condp = template-type
                         :src source-path
@@ -116,7 +118,8 @@
                         :src-py source-py-path
                         :test-py test-py-path
                         :readme readme-path
-                        :test-data test-data-path)
+                        :test-data test-data-path
+                        :init-py init-py-path)
         fname (file-function year day)]
     (do
       (if (fs/exists? fname)
@@ -139,6 +142,7 @@
     (create-new-file :readme y d)
     (create-new-file :test-data y d)
     (create-new-file :test-py y d)
+    (create-new-file :init-py y d)
     ))
 
 ;; Header is slightly different. Does this matter?
