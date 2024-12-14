@@ -1,7 +1,7 @@
 [project]
 name = "aoc"
 version = "0.1.0"
-description = "Add your description here"
+description = "Advent of Code utilities, solutions, clojure and python"
 readme = "README.md"
 authors = [
     { name = "Bartev Vartanian", email = "bartev@gmail.com" }
