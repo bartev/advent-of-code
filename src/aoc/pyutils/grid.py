@@ -86,3 +86,11 @@ class Grid:
                     # rprint("appending {row, col}")
                     points.append((row, col))
         return points
+
+    def print_positions(self, positions: list[tuple]):
+        """Print the grid with only the positions shown"""
+        pos_grid = Grid(rows=self.rows, cols=self.cols)
+        for row, col in positions:
+            val = self.get(row, col)
+            pos_grid.set(row, col, val)
+        return pos_grid

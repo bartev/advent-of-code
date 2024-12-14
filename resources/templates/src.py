@@ -23,7 +23,7 @@ FNAME_TEST = "test_data.txt"
 
 def read_data(filename: str):
     """Read the data into rules and pages"""
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf8") as f:
         content = f.read()
     return content
 
