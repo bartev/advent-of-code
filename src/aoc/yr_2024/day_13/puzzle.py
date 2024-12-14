@@ -26,6 +26,7 @@ It has scalar multiplication and addition of vectors
 import logging
 from pathlib import Path
 
+import rich
 from rich import print as rprint
 from rich.logging import RichHandler
 from rich.panel import Panel
@@ -82,7 +83,7 @@ def read_data(filename: str):
 # ########## Part
 
 rprint(Rule("Part ", style="bold green"))
-rprint(Panel.fit("[bold green]Part "))
+rprint(Panel.fit("[bold green]Part 1"))
 
 # A, B, D
 Machine = tuple[Position, Position, Position]
@@ -174,6 +175,66 @@ def cheapest_move_cost(machine) -> int:
     return min(costs) if costs else None
 
 
+def solve_n_m(machine: Machine) -> Moves:
+    """Get all (n, m) moves for A & B
+    Current solution IGNORES DEGENERATE CASES (colinear)
+    Assumes a single solution.
+
+    Use algebra
+    nA + mB = D (2 eqn)
+    solve for m(n, Ax, Bx, Dx)
+    substitute to get n(Ax, Ay, Bx, By, Dx, Dy)
+
+         (Dx - n * Ax)
+    m = -------------
+              Bx
+
+         (Dx * By - Dy * Bx)
+    n = --------------------
+         (Ax * By - Ay * Bx)
+
+    Find all n, m that are integers
+
+    Check 3 cases:
+    * get angle alpha = angle between D and A
+    * get angle beta = angle between D and B
+
+    1. If alpha == 0 => A and D are colinear
+      a. Check for D = nA
+    2. If beta == 0 => B and D are colinear
+      a. Check for D = mB
+    3. If alpha and beta == 0, find optimal n, m
+      a. Consider if |A| > 3 |B|
+      b. Could have a large number of solutions if brute force it
+      c. A could be a multiple of B (or vice versa)
+    4. A + B is colinear with D
+    5. If sign(alpha) == sign(beta) => not solvable
+    6. Use equations above to solve for n, m
+    """
+    # Not using n, m so as not to interfere with my debugger commands
+
+    A, B, D = machine
+    ax, ay = A.row, A.col
+    bx, by = B.row, B.col
+    dx, dy = D.row, D.col
+    n_numer = dx * by - dy * bx
+    n_denom = ax * by - ay * bx
+
+    # if the n_multiplier is an int, look at m_mult
+    if n_numer % n_denom == 0:
+        n_mult = n_numer // n_denom
+        m_numer = dx - n_mult * ax
+        m_denom = bx
+        if m_numer % m_denom == 0:
+            m_mult = m_numer // m_denom
+            res = (n_mult, m_mult)
+        else:
+            res = None
+    else:
+        res = None
+    return res
+
+
 @time_it
 def part1(filename: str) -> int:
     """Run part  given the input file
@@ -189,10 +250,10 @@ def part1(filename: str) -> int:
 rprint(f"""test data: {part1(FNAME_TEST)}""")
 rprint(f"""Problem input: {part1(fname)}""")
 
-# ########## Part
+# ########## Part 2
 
-rprint(Rule("Part ", style="bold red"))
-rprint(Panel.fit("[bold red]Part "))
+rprint(Rule("Part 2", style="bold red"))
+rprint(Panel.fit("[bold red]Part 2"))
 
 
 def modify_d(machine):
@@ -208,13 +269,11 @@ def part2(filename: str) -> int:
     """Run part  given the input file
     Return value should be the solution"""
     machines = read_data(filename)
-    # mach_combos = [find_all_move_combos(machine) for machine in machines]
     modified_d_machines = [modify_d(machine) for machine in machines]
-    mach_costs = [find_machine_costs_faster(machine) for machine in modified_d_machines]
+    machine_moves = [solve_n_m(machine) for machine in modified_d_machines]
+    costs = [cost_per_combo(move) for move in machine_moves if move]
+    return sum(costs)
 
-    # return len(mach_combos), len(mach_costs), len(machines)
-    return sum(cost for cost in mach_costs if cost)
 
-
-# rprint(f"""test data: {part2(FNAME_TEST)}""")
-# rprint(f"""Problem input: {part2(fname)}""")
+rprint(f"""test data: {part2(FNAME_TEST)}""")
+rprint(f"""Problem input: {part2(fname)}""")

@@ -124,3 +124,28 @@ Using the corrected prize coordinates, figure out how to win as many prizes as p
 
 Part 2 is another algorithm problem. How do we find this with such large numbers.
 ** Answer
+
+Part 1 was done the slow, iterative way.
+Part 2 was using the fast algorithm (use algebra!)
+
+I ignored the possibility of degenerate cases in part 2. Luckily there weren't any.
+
+#+begin_src shell :noeval
+    ╭────────╮
+    │ Part 1 │
+    ╰────────╯
+    part1 took 0.0481 seconds to run
+    test data: 480
+
+    part1 took 3.9914 seconds to run
+    Problem input: 29023
+
+    ╭────────╮
+    │ Part 2 │
+    ╰────────╯
+    part2 took 0.0001 seconds to run
+    test data: 875318608908
+
+    part2 took 0.0008 seconds to run
+    Problem input: 96787395375634
+#+end_src
