@@ -6,7 +6,6 @@ Date: 2024-12-10
 """
 
 from rich import print as rprint
-
 from aoc.pyutils.utils import (
     find_continuous_values,
     find_continuous_values_ge,
@@ -110,6 +109,14 @@ class Grid:
         for point in region:
             val = self.get(point)
             pos_grid.set(point, val)
+        return pos_grid
+
+    def print_on_grid(self, region: Region, char: str = "X"):
+        """Print `chr` for every point in region"""
+        assert len(char) == 1
+        pos_grid = Grid(rows=self.rows, cols=self.cols)
+        for point in region:
+            pos_grid.set(point, char)
         return pos_grid
 
     def region_boundaries(self, region: Region) -> tuple[Point]:

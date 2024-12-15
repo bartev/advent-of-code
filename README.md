@@ -1,4 +1,3 @@
-
 # Table of Contents
 
 1.  [Introduction](#orgdd99be6)
@@ -41,27 +40,6 @@ I'm basing the structure of this repo (`*.edn` files, etc) off of [tschady's rep
 
 <a id="org5a605b3"></a>
 
-## Babashka scripts
-
-Handy scripts (thanks tschady) are in `script`.
-
-`bb.edn` defines tasks that call them.
-
-e.g. To create stub files for 2023 day 7, download the data to `resources/day07.txt` and open the websites for the problem and data, run:
-
-    bb go -y 2023 -d 7
-
-or, if you want to use the current date, just run
-
-    bb go
-
--   Make sure to update the `AOC_SESSION` cookie annually (expires after ~1 month)
-
-<https://github.com/wimglenn/advent-of-code-wim/issues/1>
-
-
-<a id="orgd0f8925"></a>
-
 ## Clojure
 
 
@@ -93,15 +71,31 @@ Run with
 
 <a id="orgdef063a"></a>
 
+## Babashka scripts
+
+Handy scripts (thanks tschady) are in `script`.
+
+`bb.edn` defines tasks that call them.
+
+e.g. To create stub files for 2023 day 7, download the data to `resources/day07.txt` and open the websites for the problem and data, run:
+
+    bb go -y 2023 -d 7
+
+or, if you want to use the current date, just run
+
+    bb go
+
+-   Make sure to update the `AOC_SESSION` cookie annually (expires after ~1 month)
+
+<https://github.com/wimglenn/advent-of-code-wim/issues/1>
+
+
+<a id="orgd0f8925"></a>
+
 # Running code
 
 
 <a id="orgf6b1c9f"></a>
-
-## Clojure
-
-
-<a id="org791d946"></a>
 
 ## Python
 
@@ -133,10 +127,75 @@ Run with
 
 <a id="org0d1dfca"></a>
 
+## Clojure
+
+
+<a id="org791d946"></a>
+
 # Learnings
 
 
 <a id="org04cb310"></a>
+
+## Python
+
+
+<a id="org569ad8d"></a>
+
+### I always forget the collections package
+
+-   2024 day 1, to make a `Counter` from a list
+
+```
+        from collections import Counter
+
+        xs = [1, 2, 1, 3, 1, 4]
+        counts = Counter(xs)
+
+        # Counter({1: 3, 2: 1, 3: 1, 4: 1})
+```
+
+
+<a id="org85e7dea"></a>
+
+### Remember regex syntax
+
+-   2024 day 3, to find all matches and groups
+
+
+<a id="org9f2da87"></a>
+
+### Use profiling to see what's taking so long (see 2024 day 11)
+
+### Transpose list of tuples, matrices, etc ###
+
+Seen 2024-12-14, part 2.
+
+Use `zip(*xs)` to unpack and reorganize data.
+
+```
+xs = [(43, 88), (18, 3), (39, 70), (68, 43)]
+
+first_elements, second_elements = zip(*xs)
+print(first_elements)  # Output: (43, 18, 39, 68)
+print(second_elements) # Output: (88, 3, 70, 43)
+```
+
+## Walrus operator `:=` (assignment expression) ##
+
+The expression `(xvar := variance(xs))` means:
+Compute `variance(xs)` (call the `variance` function with `xs`).
+Assign the result to the variable `xvar`.
+Return the value of `xvar` for use in the rest of the condition.
+
+Reduces redundancy, only call `variance(xs)` 1 time.
+
+Example
+```
+if (xvar := variance(xs)) < bxvar:
+    bx, bxvar = t, xvar
+```
+
 
 ## Clojure
 
@@ -155,9 +214,9 @@ Run with
 2.  Transducer (`xform` or `xf`)
 
     A transformation from one reducing function to another.
-    
+
     Examples
-    
+
         (filter odd?) ;; returns a transducer that filters odd
         (map inc)     ;; returns a mapping transducer for incrementing
         (take 5)      ;; returns a transducer that will take the first 5 values
@@ -166,15 +225,15 @@ Run with
 
     Use the existing `comp` function.
     `comp` applies the rightmost function to the parameters, then the next rightmost function to the result, and so on.
-    
+
         (def xf
           (comp
            (filter odd?)
            (map inc)
            (take 5)))
-    
+
     The transformation above is equivalent to the sequence transformation
-    
+
         (->> coll
              (filter odd?)
              (map inc)
@@ -183,31 +242,15 @@ Run with
 
 <a id="org3f1d583"></a>
 
-## Python
+## Math ##
 
+### Chinese Remainder Theorem ###
 
-<a id="org569ad8d"></a>
+[Chines Remainder Theorem Wiki](https://en.wikipedia.org/wiki/Chinese_remainder_theorem)
 
-### I always forget the collections package
-
--   2024 day 1, to make a `Counter` from a list
-    
-        from collections import Counter
-        
-        xs = [1, 2, 1, 3, 1, 4]
-        counts = Counter(xs)
-        
-        # Counter({1: 3, 2: 1, 3: 1, 4: 1})
-
-
-<a id="org85e7dea"></a>
-
-### Remember regex syntax
-
--   2024 day 3, to find all matches and groups
-
-
-<a id="org9f2da87"></a>
-
-### Use profiling to see what's taking so long (see 2024 day 11)
-
+In mathematics, the Chinese remainder theorem states that if one knows
+the remainders of the Euclidean division of an integer n by several
+integers, then one can determine uniquely the remainder of the
+division of n by the product of these integers, under the condition
+that the divisors are pairwise coprime (no two divisors share a common
+factor other than 1)
