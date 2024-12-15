@@ -5,6 +5,7 @@ import math
 import re
 from collections import Counter
 from pathlib import Path
+from statistics import variance
 
 import rich
 from rich.logging import RichHandler
@@ -69,6 +70,11 @@ class Robot(Position):
 class PGrid(Grid):
     """Grid for this puzzle with teleport moves"""
 
+    def __init__(self, *args, **kwargs):
+        "docstring"
+        super().__init__(*args, **kwargs)
+        self.tree = self.get_xmas_tree()
+
     def draw_robots(self, robots: list[Robot]):
         """Draw a grid with a number indicating how many robots are on each position
         (last digit only)
@@ -92,7 +98,6 @@ class PGrid(Grid):
         for point, cnt in robot_pos_counts.items():
             char = str(cnt)[-1]
             pos_grid.set(point, char)
-        print("print me")
         rich.print(pos_grid)
         return pos_grid
 
@@ -118,6 +123,40 @@ class PGrid(Grid):
         # print(f"{mid_row=}, {mid_col=}")
         # rich.print(f"{robot_pos_counts=}")
         return q1, q2, q3, q4
+
+    def get_xmas_tree(self) -> Region:
+        """Return the positions to form a xmas tree"""
+        mid_row = (self.rows - 1) // 2
+        mid_col = (self.cols - 1) // 2
+
+        tree_points = []
+        for row in range(self.rows):
+            cols = range(mid_col - row, mid_col + row + 1)
+            for col in cols:
+                point = (row, col)
+                if self.in_grid(point):
+                    tree_points.append(point)
+                else:
+                    break
+
+        return tree_points
+
+    def draw_xmas_tree(self):
+        """Draw the xmas tree"""
+        # tree_positions = self.get_xmas_tree()
+        self.draw_counts_on_grid(self.tree)
+
+    def robots_in_tree(self, robots: list[Robot]):
+        """True if all the robots are in the tree formation"""
+        # for testing, return who's not
+        # Check the first n rows
+        tree = self.get_xmas_tree()
+
+        def is_in_tree(robot: Robot) -> bool:
+            return robot.pos in tree
+
+        tree_checks = map(is_in_tree, robots)
+        return Counter(tree_checks)
 
 
 def parse_line(line: str):
@@ -170,12 +209,11 @@ def part1(filename: str, rows: int, cols: int) -> int:
     """Run part 1 given the input file
     Return value should be the solution"""
     robots = read_data(filename)
-    # rich.print(robots)
     grid = PGrid(rows=rows, cols=cols)
     robot_positions = get_robot_positions(robots)
 
-    print()
-    grid.draw_counts_on_grid(get_robot_positions(robots))
+    # print()
+    # grid.draw_counts_on_grid(get_robot_positions(robots))
     # [robot.move(grid, steps=100) for robot in robots]
     robots = move_n(grid, robots, steps=100)
     # print("After 100 moves")
@@ -189,15 +227,140 @@ rich.print(f"""Problem input: {part1(fname, rows=103, cols=101)}""")
 
 # ########## Part 2
 
-# rich.print(Rule("Part 2", style="bold red"))
-# rich.print_json(Panel.fit("[bold red]Part 2"))
+rich.print(Rule("Part 2", style="bold red"))
+rich.print(Panel.fit("[bold red]Part 2"))
+
+
+# Checking for default tree at top
+@time_it
+def part2_a(filename: str, rows: int, cols: int) -> int:
+    """Run part 2 given the input file
+    Return value should be the solution"""
+    robots = read_data(filename)
+    grid = PGrid(rows=rows, cols=cols)
+    robot_positions = get_robot_positions(robots)
+    rich.print(Panel.fit("Initial positions"))
+    # rich.print(f"{grid.robots_in_tree(robots)=}")
+    # grid.draw_robots(robots)
+    for i in range(1, 10000):
+        # rich.print(Panel.fit(f"After {i} moves"))
+        robots = move_n(grid, robots)
+        robots_in_tree = grid.robots_in_tree(robots)
+        # grid.draw_robots(robots)
+        ins = robots_in_tree[True]
+        outs = robots_in_tree[False]
+        # if robots_in_tree[True] > robots_in_tree[False]:
+        # print(robots_in_tree)
+        # if robots_in_tree[False] < 2:  #
+        ratio = ins // outs
+        if i % 100 == 0:
+            rich.print(f"raw {i}: {robots_in_tree=}")
+        if ratio >= 1:
+            rbt_positions = get_robot_positions(robots)
+            # grid.draw_counts_on_grid(rbt_positions)
+            rich.print(f"--->>> After {i} moves: {robots_in_tree=}")
+            break
 
 
 @time_it
-def part2(filename: str) -> int:
+def part2_b(filename: str, rows: int, cols: int) -> int:
     """Run part 2 given the input file
     Return value should be the solution"""
+    robots = read_data(filename)
+    num_robots = len(robots)
+    grid = PGrid(rows=rows, cols=cols)
+    cnt_per_quad = grid.count_per_quadrant(get_robot_positions(robots))
+    print(cnt_per_quad)
+    # for i in range(1, 1000000):
+    #     # rich.print(Panel.fit(f"After {i} moves"))
+    #     robots = move_n(grid, robots)
+    #     cnt_per_quad = grid.count_per_quadrant(get_robot_positions(robots))
+    #     pct_of_robots = list(map(lambda x: 100 * x // num_robots, cnt_per_quad))
+    #     if i % 2500 == 0:
+    #         rich.print(f"raw {i}: {num_robots}: {cnt_per_quad=}, {pct_of_robots=}")
+    #     num_in_quads = sum(cnt_per_quad)
+    #     max_in_quad = max(cnt_per_quad)
+    #     # if max_in_quad >= (num_in_quads // 2):
+    #     if max(pct_of_robots) > 34:
+    #         print(cnt_per_quad)
+    #         rich.print(f"--->>> After {i} moves: {cnt_per_quad}")
+    #         grid.draw_counts_on_grid(get_robot_positions(robots))
+    #     robots = move_n(grid, robots, steps=100)
+    init_robots = robots[:5]
+
+    rich.print(init_robots)
+    final_robots = move_n(grid, init_robots, 103)
+    rich.print(final_robots)
+    final_robots = move_n(grid, init_robots, 101)
+    rich.print(final_robots)
+
+    return None
 
 
-# rprint(f"""test data: {part2(FNAME_TEST)}""")
-# rich.print(f"""Problem input: {part2(fname)}""")
+def part2(filename: str, rows: int, cols: int):
+    """Follow a solution from Reddit Using Chines remainder thm
+    https://www.reddit.com/r/adventofcode/comments/1hdvhvu/comment/m1zws1g/
+
+    Also, does it w/o the other classes I have.
+
+    This code treats the positions as (x, y), (vx, vy)
+    (col, row), not (row, col)
+    """
+    with open(filename, "r", encoding="utf8") as f:
+        data = f.readlines()
+
+    pattern = r"(-?\d+)"
+    robots = [[int(n) for n in re.findall(pattern, item)] for item in data]
+
+    def simulate(t: int):
+        """simulate t moves with teleportation
+        Return a list of (x, y) after `t` moves
+        """
+        return [
+            ((sx + t * vx) % cols, (sy + t * vy) % rows) for (sx, sy, vx, vy) in robots
+        ]
+
+    # Find best x, y and x-variance, y-variance (lower is better)
+    bx, by = 0, 0
+    bxvar, byvar = 10 * 100, 10 * 1000
+    for t in range(max(cols, rows)):
+        after_sim = simulate(t)  # A list of positions (x, y) after moving t steps
+        # unpack the list `after_sim`
+        # zip all the first elements then all the 2nd elements,
+        # creating lists of xs and ys
+        # This effectively TRANSPOSES the list
+        xs, ys = zip(*after_sim)
+        # I love this walrus operator!
+        if (xvar := variance(xs)) < bxvar:
+            bx, bxvar = t, xvar
+        if (yvar := variance(ys)) < byvar:
+            by, byvar = t, yvar
+
+    # Here's where the magic happens
+    # Apply the computation for the Chinese Remainder Thm.
+    # (bx, by) are the best x, y offsets (smallest variance)
+    # The target time `t` must be
+    # t = bx (mod cols)
+    # t = by (mod rows)
+    # This notation means t % cols = bx and t % rows = by
+    # So, we know bx and by are the remainders after k moves (best solution)
+    # t = bx + (k * cols)
+    # t = by + (k * rows)
+
+    # bx + (k * cols) =  + ()
+    # pow(cols, -1, rows) => the modular inverse s.t.
+    # M * cols % rows = 1
+    # pow is NOT the same as math.pow
+
+    # b^-1 x b % n = 1
+    # pow(b, -1, n) = 1
+
+    # answer = algebra...
+    answer = bx + ((pow(cols, -1, rows) * (by - bx)) % rows) * cols
+    return answer
+
+
+# rich.print(f"""test data: {part2(FNAME_TEST, rows=7, cols=11)}""")
+print()
+
+rich.print(f"""Problem input: {part2(fname, rows=103, cols=101)}""")
