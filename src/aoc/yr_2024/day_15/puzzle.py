@@ -9,6 +9,8 @@ from rich.logging import RichHandler
 from rich.panel import Panel
 from rich.rule import Rule
 
+from aoc.pyutils.utils import flatten
+
 # from aoc.pyutils.utils import flatten, time_it
 
 # Set up basic config for logging
@@ -32,6 +34,17 @@ def read_data(filename: str) -> (list[list[str]], str):
             line = f.readline().strip()
         moves = list(f.read().replace("\n", ""))
         return grid, moves
+
+
+def widen_line(line: list[str]) -> list[str]:
+    """widen all cells except robot"""
+    new_vals = {"#": ["#", "#"], "O": ["[", "]"], ".": [".", "."], "@": ["@", "."]}
+    return flatten([new_vals[cell] for cell in line])
+
+
+def widen_grid(grid: list[list[str]]) -> list[list[str]]:
+    """widen the entire grid"""
+    return [widen_line(line) for line in grid]
 
 
 Point = tuple[int, int]  # (row, col)
@@ -153,7 +166,7 @@ class Part1(BaseModel):
         self.update_point(end_pos, start_val)
         self.update_point(start_pos, end_val)
 
-    def move(self):
+    def move(self, draw=False):
         """Move the robot"""
         # breakpoint()
 
@@ -169,6 +182,8 @@ class Part1(BaseModel):
         self.current_move_index += 1
         if self.current_move_index < len(self.moves):
             self.update_point(self.robot, self.direction)
+        if draw:
+            self.draw()
 
     def move_all(self):
         """Execute all moves"""
@@ -203,21 +218,106 @@ class Part1(BaseModel):
 
 # ########## Part 1
 
-rich.print(Rule("Part 1", style="bold green"))
-rich.print(Panel.fit("[bold green]Part 1"))  #
 
-grid, moves = read_data(filename="test_data.txt")
-# p1 = Part1(grid=grid, moves=moves)
-rich.print(f"test data, part1: {Part1(grid=grid, moves=moves).execute_1()}")
+def exec_part1():
+    rich.print(Rule("Part 1", style="bold green"))
+    rich.print(Panel.fit("[bold green]Part 1"))  #
 
-grid, moves = read_data(filename=fname)
-rich.print(f"puzzle data, part1: {Part1(grid=grid, moves=moves).execute_1()}")
+    grid, moves = read_data(filename="test_data.txt")
+    # p1 = Part1(grid=grid, moves=moves)
+    rich.print(f"test data, part1: {Part1(grid=grid, moves=moves).execute_1()}")
 
+    grid, moves = read_data(filename=fname)
+    rich.print(f"puzzle data, part1: {Part1(grid=grid, moves=moves).execute_1()}")
+
+
+# exec_part1()
 
 # # ########## Part 2
 
-# rprint(Rule("Part 2", style="bold red"))
-# rprint(Panel.fit("[bold red]Part 2"))
+rich.print(Rule("Part 2", style="bold red"))
+rich.print(Panel.fit("[bold red]Part 2"))
+
+
+class Part2(Part1):
+    """Differences from Part1
+    1. if moving block left, swap left block, then right block, then robot
+    2. if moving block right, swap right, then left then robot
+    3. If moving up/down, need to see how wide the blocks are,
+       since they can overlap
+    """
+
+    def shift_robot_blocks_horiz(self, end_posit: Point):
+        """Shift the robot and blocks horizontally
+        if the robot is in col c, and end posit is col e,
+        shift everything between c and e over a space.
+
+        ##.#.[][]@[].##  <-- start
+        012345678901234
+
+        ##.#[][]@.[].##  <-- ending
+
+        c=9, e=4
+        line[:e] + line[e+1:c+1] + [line[e]] + line[c+1:]
+        '##.#[][]@.[].##'
+
+        What if shifting right?
+
+        c=9, e=12
+        line[:c] + [line[e]] + line[c:e] + line[e+1:]
+        '##.#.[][].@[]##'
+        """
+        row, col = self.robot
+        end_row, end_col = end_posit
+        if row != end_row:
+            raise ValueError("row and end_row must be the same for horiz shifting")
+
+        line = self.grid[row]
+        if col > end_col:
+            new_line = (
+                line[:end_col]  # to the left of space
+                + line[end_col + 1 : col + 1]  # blocks + robot
+                + [line[end_col]]  # space
+                + line[col + 1 :]  # to the right of robot
+            )
+        else:
+            new_line = (
+                line[:col] + [line[end_col]] + line[col:end_col] + line[end_col + 1 :]
+            )
+        self.grid[row] = new_line
+
+    def move(self, draw=True):
+        # robot moves 1 space in any direction
+        next_adj = self.next_robot_position()
+        next_open_position = self.find_next_open()
+        if self.direction in ["<", ">"]:
+            # Horizontal moves are essentially the same, just a shift 1 block left/right
+            next_open_position = self.find_next_open()
+            if next_open_position is None:
+                pass
+            else:
+                self.shift_robot_blocks_horiz(next_open_position)
+                self.robot = next_adj
+        elif next_adj == next_open_position:
+            # Vertical moves are move complicated due to overlap
+            # robot can move w/o obstruction
+            self.swap(self.robot, next_adj)
+            self.robot = next_adj
+        else:
+            # Vertical moves with blocks are move complicated due to overlap
+            pass
+        self.current_move_index += 1
+        if self.current_move_index < len(self.moves):
+            self.update_point(self.robot, self.direction)
+        if draw:
+            self.draw()
+
+
+grid, moves = read_data(filename="test_data.txt")
+grid = widen_grid(grid)
+p1 = Part2(grid=grid, moves=moves)
+
+# rich.print(f"test data, part2: {Part1(grid=grid, moves=moves).execute_1()}")
 
 
 # @time_it
