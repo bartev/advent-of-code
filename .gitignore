@@ -16,3 +16,4 @@ pom.xml.asc
 .session
 /private.edn
 /.envrc
+__pycache__
