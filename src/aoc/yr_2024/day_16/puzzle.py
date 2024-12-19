@@ -175,14 +175,18 @@ def dijkstra_maze_relaxed(maze: Grid, start: Point, end: Point, direc="e"):
     # (current_cost, current_position, previous_direction_index)
     # I should never move 180 degrees
 
-    queue = [(0, start, direc)]  # Initialize the queue with start position, 0 cost
-    costs = {start: 0}  # Dict to store minimum costs to each cell
+    # Initialize the queue with start position, 0 cost
+    queue = [(0, (start, direc))]
+    # Dict to store minimum costs to each cell
+    costs = {(start, direc): 0}
     # This is different, keep track of ALL parents that result in the same cost
-    parents: dict[Point, list[Point]] = {start: []}
+    parents: dict[Point, list[Point]] = {(start, direc): []}
+
+    # breakpoint()
 
     while queue:
         # get the lowest cost item from the queue
-        current_cost, (x, y), prev_dir = heapq.heappop(queue)
+        current_cost, ((x, y), prev_dir) = heapq.heappop(queue)
 
         if (x, y) == end:
             # This time, continue searching for other paths
@@ -192,8 +196,8 @@ def dijkstra_maze_relaxed(maze: Grid, start: Point, end: Point, direc="e"):
         for new_dir in directions:
             dx, dy = direc_incrs[new_dir]
             new_x, new_y = x + dx, y + dy
-            if new_x == 7 and new_y == 5:
-                breakpoint()
+            # if new_x == 7:
+            #     breakpoint()
 
             # check bounds and if the cell is traversable
             if (
@@ -202,47 +206,69 @@ def dijkstra_maze_relaxed(maze: Grid, start: Point, end: Point, direc="e"):
                 and maze[new_x][new_y] in ["S", "E", "."]
             ):
                 # Calculate cost of this move
-                if prev_dir == new_dir:
-                    move_cost = 1
-                elif (prev_dir in ["n", "s"] and new_dir in ["e", "w"]) or (
-                    prev_dir in ["e", "w"] and new_dir in ["n", "s"]
-                ):  # 90 degree turn
-                    move_cost = 1001
-                else:  # 180 degree turn (don't do this!)
-                    move_cost = 2001
+                move_cost = (
+                    1
+                    if prev_dir == new_dir  # Same direction
+                    else (  # 90 degree turn
+                        1001
+                        if (prev_dir in "ns" and new_dir in "ew")
+                        or (prev_dir in "we" and new_dir in "ns")
+                        else 2001  # 180 degree turn
+                    )
+                )
 
                 # new_cost is the cost if I moved into this space
                 new_cost = current_cost + move_cost
 
                 # Update coste and queue if this path is cheaper
-                if (new_x, new_y) not in costs or new_cost < costs[(new_x, new_y)]:
-                    costs[(new_x, new_y)] = new_cost
-                    parents[(new_x, new_y)] = [(x, y)]  # Replace the entire list
-                    heapq.heappush(queue, (new_cost, (new_x, new_y), new_dir))
-                elif new_cost == costs[(new_x, new_y)]:  # Same cost, so add to parents
-                    parents[(new_x, new_y)].append((x, y))
+                new_key = ((new_x, new_y), new_dir)
+                if new_key not in costs or new_cost < costs[new_key]:
+                    costs[new_key] = new_cost
+                    parents[new_key] = [((x, y), prev_dir)]  # Replace the entire list
+                    heapq.heappush(queue, (new_cost, new_key))
+                elif new_cost == costs[new_key]:  # Same cost, so add to parents
+                    parents[new_key].append(((x, y), prev_dir))
 
     # Get all the best paths from parents
     all_best_paths = []
-    breakpoint()
+    # breakpoint()
 
     def backtrack(current: Point, path: list[Point]):
         """Recursively get all paths (starting at end) by looking at all parents
         MODIFIES ALL_BEST_PATHS IN PLACE.
         """
-        if current == start:
+        if current[0] == start:
             all_best_paths.append(path[::-1])
             return
         for parent in parents.get(current, []):  # recursive call with longer path
-            backtrack(parent, path + [parent])
+            backtrack(parent, path + [parent[0]])
 
-    backtrack(end, [end])  # modifies all_best_paths
-    breakpoint()
+    best_cost = None
+    end_direcs = []
+    # breakpoint()
 
-    best_cost = costs.get(end, None)
-    rich.print(all_best_paths)
-    num_points_in_all_best_paths = len(flatten(all_best_paths))
-    return best_cost, num_points_in_all_best_paths
+    for direc in directions:
+        _cost = costs.get((end, direc), None)
+        if _cost is None:
+            continue
+        elif best_cost is None:
+            best_cost = _cost
+            end_direcs.append(direc)
+        elif _cost <= best_cost:
+            best_cost = _cost
+            end_direcs.append(direc)
+
+    print(f"{end_direcs=}")
+    print(f"{best_cost=}")
+
+    for direc in end_direcs:
+        backtrack((end, direc), [end])  # modifies all_best_paths
+    # breakpoint()
+
+    # rich.print(all_best_paths)
+    num_points_in_all_best_paths = flatten(all_best_paths)
+    # rich.print(num_points_in_all_best_paths)
+    return best_cost, len(set(num_points_in_all_best_paths))
 
 
 @time_it
@@ -276,5 +302,5 @@ def part2(filename: str) -> int:
 
 
 rich.print(f"""test data (expect 45): {part2(FNAME_TEST)}""")
-# rich.print(f"""test data 2 (expect 64): {part2('test_data_2.txt')}""")
-# rich.print(f"""Problem input: {part2(fname)}""")
+rich.print(f"""test data 2 (expect 64): {part2('test_data_2.txt')}""")
+rich.print(f"""Problem input: {part2(fname)}""")
