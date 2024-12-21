@@ -100,8 +100,9 @@ def dijkstra(maze: Grid):
                     parent[new_point] = (y, x)
                     heapq.heappush(queue, (new_cost, new_point))
 
-    rich.print(f"{queue=}")
-    rich.print(f"{costs=}")
+    # rich.print(f"{queue=}")
+    # rich.print(f"{costs=}")
+    return -1
 
 
 @time_it
@@ -128,11 +129,57 @@ rich.print(Rule("Part 2", style="bold red"))
 rich.print(Panel.fit("[bold red]Part 2"))
 
 
+def binary_search(grid_dim: int, moves: list[Point]) -> Point:
+    """Find first move that causes maze to be unsolvable
+    invariants
+    idx_start: is solvable
+    idx_end: is under test
+
+    """
+    idx_start = 0
+    idx_end = len(moves)
+
+    found = False
+
+    idx_half = (idx_start + idx_end) // 2
+    while not found:
+        # Check the 1/2 point
+        # breakpoint()
+
+        # initialize a new maze
+        maze = PGrid(grid_dim + 1)
+        # Add drops up to idx_end
+        for i in range(idx_half):
+            maze.set(moves[i])
+
+        cost = dijkstra(maze.grid)
+        if cost < 0:
+            # not solvable maze, adjust the end closer
+            idx_end = idx_half
+        else:
+            # solvable, adjust start
+            idx_start = idx_half
+
+        new_idx_half = (idx_start + idx_end) // 2
+        if idx_half == new_idx_half:
+            found = True
+        else:
+            idx_half = new_idx_half
+            print(f"binary search: {idx_start, idx_end, idx_half}")
+
+    return moves[idx_half]
+
+
 @time_it
-def part2(filename: str) -> int:
+def part2(filename: str, max_grid_dim: int = 70) -> int:
     """Run part 2 given the input file
-    Return value should be the solution"""
+    Return value should be the solution
+    Run a binary search on the number of items to drop
+    """
+    moves = read_csv_data(filename)
+    row, col = binary_search(grid_dim=max_grid_dim, moves=moves)
+    return col, row
 
 
-# rich.print(f"""test data: {part2(FNAME_TEST)}""")
-# rich.print(f"""Problem input: {part2(fname)}""")
+rich.print(f"""test data: {part2(FNAME_TEST, max_grid_dim=6)}""")
+rich.print(f"""Problem input: {part2(fname, max_grid_dim=70)}""")

@@ -170,3 +170,39 @@ step 73 blocks
 how to find 1/2 way point?
 round_up((start + end) / 2 )
 ** Answer
+
+#+begin_example
+────────────────────────────────────────────────────────────────────────────────────────── Part 1 ───────────────────────────────────────────────────────────────────────────────────────────
+╭────────╮
+│ Part 1 │
+╰────────╯
+part1 took 0.0001 seconds to run
+test data: 22
+
+part1 took 0.0054 seconds to run
+Problem input: 416
+────────────────────────────────────────────────────────────────────────────────────────── Part 2 ───────────────────────────────────────────────────────────────────────────────────────────
+╭────────╮
+│ Part 2 │
+╰────────╯
+binary search: (12, 25, 18)
+binary search: (18, 25, 21)
+binary search: (18, 21, 19)
+binary search: (19, 21, 20)
+part2 took 0.0002 seconds to run
+test data: (6, 1)
+
+binary search: (1725, 3450, 2587)
+binary search: (2587, 3450, 3018)
+binary search: (2587, 3018, 2802)
+binary search: (2802, 3018, 2910)
+binary search: (2802, 2910, 2856)
+binary search: (2856, 2910, 2883)
+binary search: (2856, 2883, 2869)
+binary search: (2856, 2869, 2862)
+binary search: (2862, 2869, 2865)
+binary search: (2865, 2869, 2867)
+binary search: (2867, 2869, 2868)
+part2 took 0.0168 seconds to run
+Problem input: (50, 23)
+#+end_example
