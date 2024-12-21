@@ -104,7 +104,7 @@ def dijkstra_maze(maze: Grid, start: Point, end: Point, direc="e"):
                 #     f"{current_cost=}, {move_cost=}, {len(queue)=}, {new_dir=}, delta {(dx, dy)}, new_pos {(new_x, new_y)}, {maze[new_x][new_y]}"
                 # )
 
-                # Update coste and queue if this path is cheaper
+                # Update cost and queue if this path is cheaper
                 if (new_x, new_y) not in costs or new_cost < costs[(new_x, new_y)]:
                     costs[(new_x, new_y)] = new_cost
                     parent[(new_x, new_y)] = (x, y)

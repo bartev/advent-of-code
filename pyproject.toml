@@ -43,3 +43,8 @@ disable = [
 ignore = [
   "E501", # Line too long
 ]
+
+[dependency-groups]
+dev = [
+    "rich>=13.9.4",
+]
