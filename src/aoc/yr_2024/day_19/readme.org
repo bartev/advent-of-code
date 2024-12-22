@@ -110,6 +110,7 @@ Adding up all of the ways the towels in this example could be arranged into the 
 
 They'll let you into the onsen as soon as you have the list. What do you get if you add up the number of different ways you could make each design?
 ** Plan of attack
+*** Use reduced towels to find shortest path
 - The brute force method blew up in part 1
 - This time
   1. Find what pattens can be made using the reduced towels.
@@ -141,11 +142,55 @@ you can make =bra= the following ways:
 [bra] = 1 way.
 
 So, you have 4 x 1 ways to make =bbbbra=
+**** Failed
+Found a bug when looking at the test data.
+    Found 2 shortest paths
+#+BEGIN_EXAMPLE
+    [['r', 'rb', 'g', 'br'], ['r', 'rb', 'gb', 'r']]
+#+END_EXAMPLE
+
+
+    But, [g, br] and [gb, r] share a common permutation.
+
+#+BEGIN_EXAMPLE
+    [g, br], [g, b, r]
+    [gb, r], [g, b, r]
+
+#+END_EXAMPLE
+
+    So instead of 2 ways to get 'gbr', or 4, there are actually 3.
+*** Look at reddit
+[[https://www.reddit.com/r/adventofcode/comments/1hhlb8g/comment/m3620el/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button]]
+
+We struggled to use the cache decorator (we are still learning), so we
+kind of created one by hand. Part 2 required minimum modifications to
+the Part 1 code. At first, we made a mistake since we had lstrip
+instead of removeprefix in the recursion.
+
+For both parts, the solution is recursive, with a rudimental cache
+that avoids too many repetitions. At first, there is a check if the
+word actually contains at least one of the syllables (in order to have
+fewer iterations later), then an additional check on which syllables
+can be used to create the beginning of the word (again in order to
+reduce the number of iterations). For part one, a boolean was
+returned, but part 2 required the number of possible combinations, so
+the return became the counter (which increased every time the word was
+found).
 
 
 
-
-
-  
-  
 ** Answer
+I used the Reddit solution linked above to find this.
+
+I was getting to the right solution, ... a few more iterations maybe?
+
+Run
+#+BEGIN_EXAMPLE
+> uv run reddit_1.py
+
+part1: 6
+part2: 16
+─────────────────────────────────────────────────────────────────────────────────────────────────────────
+part1: 311
+part2: 616234236468263
+#+END_EXAMPLE
