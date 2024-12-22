@@ -45,10 +45,107 @@ Not all designs will be possible with the available towels. In the above example
 In this example, 6 of the eight designs are possible with the available towel patterns.
 
 To get into the onsen as soon as possible, consult your list of towel patterns and desired designs carefully. How many designs are possible?
-
-
+** Plan of attack
+- =stripe_pattern= is what we're looking for
+- create a dict of all towels that match the beginning of the stripe_pattern
+  - The key is the towel stripe
+  - The value is the remainder of the stripe_pattern
+  - e.g. stripe_pattern = brwrr
+    - {b: rwrr, br: wrr}
+    - repeat for the remainder of the string
+*** Revised - reduce number of towels
 ** Answer
 
-* Part 2
+#+begin_example
+  ──────────────────────────────────── Part 1 ─────────────────────────────────────
+  ╭────────╮
+  │ Part 1 │
+  ╰────────╯
+  len(towels)=8, len(reduced_towels)=5
+  part1 took 0.0002 seconds to run
+  test data: 6
 
+  len(towels)=447, len(reduced_towels)=28
+  part1 took 0.2249 seconds to run
+  Problem input: 311
+#+end_example
+* Part 2
+--- Part Two ---
+
+The staff don't really like some of the towel arrangements you came up with. To avoid an endless cycle of towel rearrangement, maybe you should just give them every possible option.
+
+Here are all of the different ways the above example's designs can be made:
+
+brwrr can be made in two different ways: b, r, wr, r or br, wr, r.
+
+bggr can only be made with b, g, g, and r.
+
+gbbr can be made 4 different ways:
+
+#+BEGIN_EXAMPLE
+g, b, b, r
+g, b, br
+gb, b, r
+gb, br
+rrbgbr can be made 6 different ways:
+#+END_EXAMPLE
+
+
+#+BEGIN_EXAMPLE
+r, r, b, g, b, r
+r, r, b, g, br
+r, r, b, gb, r
+r, rb, g, b, r
+r, rb, g, br
+r, rb, gb, r
+bwurrg can only be made with bwu, r, r, and g.
+#+END_EXAMPLE
+
+
+brgr can be made in two different ways: b, r, g, r or br, g, r.
+
+ubwu and bbrgwb are still impossible.
+
+Adding up all of the ways the towels in this example could be arranged into the desired designs yields 16 (2 + 1 + 4 + 6 + 1 + 2).
+
+They'll let you into the onsen as soon as you have the list. What do you get if you add up the number of different ways you could make each design?
+** Plan of attack
+- The brute force method blew up in part 1
+- This time
+  1. Find what pattens can be made using the reduced towels.
+  2. Count how many ways these can be made using the full towels
+     Do this as intelligently as possible
+- Count ways
+- create a dict of =towel : count(ways to make towel from other towels)=
+- In the recursive algorithm, start with the largest matching string.
+- Once I have a large matching string, keep track of that, and search on the remainder.
+- Multiple the counts for each matching string to get the total combinations
+- If I don't find a maching path when I know there should be one, try a shorter matching string.
+
+  e.g.
+#+BEGIN_EXAMPLE
+  design = "bbbbra"
+  towels = ['b', 'r', 'bb', 'br', 'bbb', 'bra' 'bbbb']
+#+END_EXAMPLE
+
+=bbbb= matches, remainder =ra=.
+=ra= does not match.
+try next shorter strings, [ =bbb=, =bra= ]
+=bbb= matches, remainder =bra=
+=bra= matches
+
+so, the path is =bbb=, =bra=
+you can make =bbb= the following ways:
+[b, b, b], [b, bb], [bb, b], [bbb] = 4 ways
+you can make =bra= the following ways:
+[bra] = 1 way.
+
+So, you have 4 x 1 ways to make =bbbbra=
+
+
+
+
+
+  
+  
 ** Answer
