@@ -11,7 +11,6 @@
     2.  [Python](#org791d946)
         1.  [I'm using `uv` to manage the environment.](#orgc7f367a)
         2.  [To add more dependencies,](#org31bf348)
-        3.  [For an editable install of the current package](#org8c70886)
 4.  [Learnings](#org0d1dfca)
     1.  [Clojure](#org04cb310)
         1.  [Transducers](#org603b0e5)
@@ -113,17 +112,23 @@ or, if you want to use the current date, just run
 ### To add more dependencies,
 
     uv add new_package
+    uv add --dev dev_package
     uv sync
 
+### Caching ###
 
-<a id="org8c70886"></a>
+It's really easy to cache function results. Useful for recursive functions.
 
-### For an editable install of the current package
+`cache` or `lru_cache` (least recently used)
 
-(to add utility functions)
+See 2024-12-19
+```python
+from functools import cache
 
-    uv pip install -e .
-
+@cache
+def my_recursive_function(x):
+    ...
+```
 
 <a id="org0d1dfca"></a>
 
@@ -181,7 +186,7 @@ print(first_elements)  # Output: (43, 18, 39, 68)
 print(second_elements) # Output: (88, 3, 70, 43)
 ```
 
-## Walrus operator `:=` (assignment expression) ##
+### Walrus operator `:=` (assignment expression) ###
 
 The expression `(xvar := variance(xs))` means:
 Compute `variance(xs)` (call the `variance` function with `xs`).
@@ -196,7 +201,40 @@ if (xvar := variance(xs)) < bxvar:
     bx, bxvar = t, xvar
 ```
 
+### Reading text from a file ###
 
+#### Deconstruct: Read line 1 into a list, skip line 2, read line 3+ into a list ####
+
+This is a nice snipped of code (2024-12-19)
+
+```python
+P, _, *D = open('test_data.txt').read().splitlines()
+```
+
+With test data like this:
+
+```
+r, wr, b, g, bwu, rb, gb, br
+
+brwrr
+bggr
+gbbr
+rrbgbr
+ubwu
+bwurrg
+brgr
+bbrgwb
+```
+
+The result is
+```python
+>>> P
+'r, wr, b, g, bwu, rb, gb, br'
+>>> _
+''
+>>> D
+['brwrr', 'bggr', 'gbbr', 'rrbgbr', 'ubwu', 'bwurrg', 'brgr', 'bbrgwb']
+```
 ## Clojure
 
 

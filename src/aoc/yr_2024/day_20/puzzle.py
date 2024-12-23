@@ -3,7 +3,7 @@
 import logging
 from pathlib import Path
 
-import rich
+from rich import print as rprint
 from rich.logging import RichHandler
 from rich.panel import Panel
 from rich.rule import Rule
@@ -16,8 +16,8 @@ logging.basicConfig(level="NOTSET", format=FORMAT, handlers=[RichHandler()])
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-dname = Path("../../../../resources/{{year}}/")
-fname = dname / "d{{day}}.txt"
+dname = Path("../../../../resources/2024/")
+fname = dname / "d20.txt"
 FNAME_TEST = "test_data.txt"
 
 
@@ -30,8 +30,8 @@ def read_data(filename: str):
 
 # ########## Part 1
 
-rich.print(Rule("Part 1", style="bold green"))
-rich.print(Panel.fit("[bold green]Part 1"))
+rprint(Rule("Part 1", style="bold green"))
+rprint(Panel.fit("[bold green]Part 1"))
 
 
 @time_it
@@ -40,13 +40,13 @@ def part1(filename: str) -> int:
     Return value should be the solution"""
 
 
-rich.print(f"""test data: {part1(FNAME_TEST)}""")
-# rich.print(f"""Problem input: {part1(fname)}""")
+rprint(f"""test data: {part1(FNAME_TEST)}""")
+# rprint(f"""Problem input: {part1(fname)}""")
 
 # ########## Part 2
 
-rich.print(Rule("Part 2", style="bold red"))
-rich.print(Panel.fit("[bold red]Part 2"))
+rprint(Rule("Part 2", style="bold red"))
+rprint(Panel.fit("[bold red]Part 2"))
 
 
 @time_it
@@ -55,5 +55,5 @@ def part2(filename: str) -> int:
     Return value should be the solution"""
 
 
-# rich.print(f"""test data: {part2(FNAME_TEST)}""")
-rich.print(f"""Problem input: {part2(fname)}""")
+# rprint(f"""test data: {part2(FNAME_TEST)}""")
+rprint(f"""Problem input: {part2(fname)}""")
