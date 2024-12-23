@@ -12,18 +12,16 @@ FNAME_TEST = "test_data.txt"
 
 def find_syl(design, syll_tot, res=0, cache=None):
     """recursive function"""
-    # rich.print(f"{design=}, {res=}")
-    # rich.print(syll_tot)
-    # rich.print(cache)
-    # breakpoint()
-
+    # Initialize cache
     if cache is None:
         cache = {}
+    # Grab from cache if it's in there
     if design in cache:
         return cache[design]
+    # If reached the end of the string, add to cache
     if len(design) == 0:
         return cache.setdefault(design, 1)
-    # reduce number of syllables to check
+    # Reduce number of syllables to check
     syll = [elem for elem in syll_tot if elem in design]
     if len(syll) == 0:  # none found
         return cache.setdefault(design, 0)
