@@ -130,9 +130,26 @@ In this example, the total number of cheats (grouped by the amount of time they 
 - There is one cheat that saves 40 picoseconds.
 - There is one cheat that saves 64 picoseconds.
 You aren't sure what the conditions of the racetrack will be like, so to give yourself as many options as possible, you'll need a list of the best cheats. How many cheats would save you at least 100 picoseconds?
-
+** Plan of attack
+*** Try each wall
+- Map each track position to time to end
+- for each position along the path, try going through a wall
+- If can go through a wall, record the difference in time betwen the
+  ending and starting positions
+  - (1,7) -> (1,8), (1,9)
+  - track_time(1,7) = 12
+  - track_time(1,9) = 26
+  - time saved = 26 - 12 - 2= 14 (Subtract 2 for the cheat steps)
+  - Add this entry to the time_saved map ((1,8), (1,9)) : 14
+  - Only save time if track_time_2 is > track_time_1
+- To check a new path, at each position
+  - check 2 steps in each direction (n, s, e, w)
+  - if 1 step in that dir is a wall, and the 2nd step is a track, and
+    time(new position) > time(start pos), then record
 
 ** Answer
+
+1441
 
 * Part 2
 
