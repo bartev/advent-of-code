@@ -2,6 +2,7 @@
 
 import logging
 from collections import Counter
+from itertools import product
 from pathlib import Path
 
 import rich
@@ -39,12 +40,26 @@ class PGrid(Grid):
     directions = direc_incrs.keys()
     valid_points = ".ES"
 
-    def find_char(self, char: str = "S"):
+    def find_char_old(self, char: str = "S"):
         """Find the Point that contains `char`"""
         for row in range(self.rows):
             for col in range(self.cols):
                 if self.get((row, col)) == char:
                     return (row, col)
+
+    def find_char(self, char: str = "S"):
+        """GPT suggested improvements
+        This is also marginally faster than my original double
+        for-loop method
+        """
+        return next(
+            (
+                (row, col)
+                for row, col in product(range(self.rows), range(self.cols))
+                if self.get((row, col)) == char
+            ),
+            None,
+        )
 
     def number_maze_steps(self):
         """Start at `start`, end at `end`, and number steps to get there"""
