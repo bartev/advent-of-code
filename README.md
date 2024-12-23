@@ -203,7 +203,7 @@ if (xvar := variance(xs)) < bxvar:
 
 ### Reading text from a file ###
 
-#### Read line 1 into a list, skip line 2, read line 3+ into a list ####
+#### Deconstruct: Read line 1 into a list, skip line 2, read line 3+ into a list ####
 
 This is a nice snipped of code (2024-12-19)
 
