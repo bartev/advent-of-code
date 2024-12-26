@@ -1,32 +1,10 @@
 #!/usr/bin/env python
 
-import logging
 from collections import deque
 from functools import cache
 from itertools import product
-from pathlib import Path
 
 import rich
-from rich.console import Console
-from rich.logging import RichHandler
-from rich.panel import Panel
-from rich.rule import Rule
-
-from aoc.pyutils.utils import time_it
-
-# Set up basic config for logging
-FORMAT = "%(levelname)8s - %(funcName)s - %(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, handlers=[RichHandler()])
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.setLevel(logging.INFO)
-
-dname = Path("../../../../resources/2024/")
-fname = dname / "d21.txt"
-FNAME_TEST = "test_data.txt"
-
-
-console = Console()
 
 
 def read_data(filename: str) -> list[str]:
@@ -36,13 +14,7 @@ def read_data(filename: str) -> list[str]:
     return content
 
 
-# read_data('test_data.txt')
-
 # ########## Part 1
-
-rich.print(Rule("Part 1", style="bold green"))
-rich.print(Panel.fit("[bold green]Part 1"))
-
 
 Point = tuple[int, int]
 
@@ -88,7 +60,6 @@ def bfs_shortest_paths(start_str: str, end_str: str, keypad_name: str) -> list[s
     min_length = float("inf")
     keypad_bounds = set(keypad.values())
 
-    logger.debug(f"Now searching {start} - {end}")
     while queue:
         current, path = queue.popleft()
 
@@ -99,10 +70,8 @@ def bfs_shortest_paths(start_str: str, end_str: str, keypad_name: str) -> list[s
             if len(path) < min_length:
                 min_length = len(path)
                 shortest_paths = [path]
-                # logger.debug(f"new shortest path: {path}")
             elif len(path) == min_length:
                 shortest_paths.append(path)
-                # logger.debug(f"appending to shortest path: {path}") #
             continue
         for move, (drow, dcol) in directions.items():
             next_pos = (current[0] + drow, current[1] + dcol)
@@ -176,7 +145,6 @@ def complexity(code: str) -> int:
     return numeric_part * len(paths[0])
 
 
-@time_it
 def part1(filename: str) -> int:
     """Run part 1 given the input file
     Return value should be the solution"""
@@ -188,13 +156,9 @@ def part1(filename: str) -> int:
     return res
 
 
-rich.print(f"""test data: {part1(FNAME_TEST)}""")
-# rich.print(f"""Problem input: {part1(fname)}""")
+rich.print(f"""test data: {part1("test_data.txt")}""")
 
 # ########## Part 2
-
-rich.print(Rule("Part 2", style="bold red"))
-rich.print(Panel.fit("[bold red]Part 2"))
 
 
 def proc_doorcode_1(prev_robot_paths: list[str]) -> list[str]:
@@ -218,11 +182,12 @@ def bfs_process_doorcode_multiple(code: str, num_robots: int = 2) -> list[str]:
     """Process a single doorcode with BFS for num_robots + me"""
     # Get all paths for robot 1
     key_paths_1 = zip("A" + code, code)
+    # breakpoint()
+
     robot_1_buttons = [
         bfs_shortest_paths(start, end, "numeric") for start, end in key_paths_1
     ]
     robot_1_paths = keep_min_len_strings(stringify_paths(robot_1_buttons))
-    # breakpoint()
 
     prev_robot_paths = robot_1_paths
     for _ in range(num_robots):
@@ -239,24 +204,20 @@ def complexity_2(code: str, path_len: int) -> int:
     return numeric_part * path_len
 
 
-@time_it
-def part2(filename: str, num_robots: int = 2) -> int:
+def part2(filename: str) -> int:
     """Run part 2 given the input file
     Return value should be the solution"""
     numeric_targets = read_data(filename)
 
     rich.print(numeric_targets)
-    # my_codes = [
-    #     (code, len(bfs_process_doorcode_multiple(code)[0])) for code in numeric_targets
-    # ]
-    my_codes = []
-    for code in numeric_targets:
-        tmp = (code, len(bfs_process_doorcode_multiple(code, num_robots=num_robots)[0]))
-        my_codes.append(tmp)
+    my_codes = [
+        (code, len(bfs_process_doorcode_multiple(code)[0])) for code in numeric_targets
+    ]
 
     # res = sum(complexity(code) for code in numeric_targets)
+    breakpoint()
 
     return my_codes
 
 
-rich.print(f"""test data: {part2(FNAME_TEST, num_robots=4)}""")
+# rich.print(f"""test data: {part2("test_data.txt")}""")
