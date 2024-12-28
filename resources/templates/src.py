@@ -22,6 +22,8 @@ logging.basicConfig(level="NOTSET", format=FORMAT, handlers=[RichHandler()])
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+script_dir = Path(__file__).parent
+
 dname = Path("../../../../resources/{{year}}/")
 fname = dname / "d{{day}}.txt"
 FNAME_TEST = "test_data.txt"
