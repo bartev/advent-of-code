@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 
+import functools
+import heapq
 import logging
+import re
+import sys
+from collections import Counter, defaultdict, deque
 from pathlib import Path
 
+import pyperclip as pc
 import rich
 from rich.logging import RichHandler
 from rich.panel import Panel
 from rich.rule import Rule
 
-from aoc.pyutils.utils import time_it
+# from aoc.pyutils.utils import time_it
 
 # Set up basic config for logging
 FORMAT = "%(levelname)8s - %(funcName)s - %(message)s"
@@ -19,6 +25,18 @@ logger.setLevel(logging.DEBUG)
 dname = Path("../../../../resources/{{year}}/")
 fname = dname / "d{{day}}.txt"
 FNAME_TEST = "test_data.txt"
+
+sys.setrecursionlimit(10**6)
+DIRS = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # up right down left
+
+
+def ints(s):
+    """Return a list of all ints in s
+    Example:
+    > ints('xy2b-34y5-6z')
+    [2, -34, 5, -6]
+    """
+    return [int(x) for x in re.findall(r"-?\d+", s)]
 
 
 def read_data(filename: str):
