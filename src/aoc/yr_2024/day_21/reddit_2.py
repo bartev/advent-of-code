@@ -12,6 +12,15 @@ from rich.rule import Rule
 dname = Path("../../../../resources/2024/")
 fname = dname / "d21.txt"
 
+import logging
+from rich.logging import RichHandler
+
+# Set up basic config for logging
+FORMAT = "%(levelname)8s - %(funcName)s - %(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, handlers=[RichHandler()])
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 def ints(s):
     """Return a list of all ints in s
@@ -50,6 +59,11 @@ def get_pad2(p1):
 
 
 def apply_pad1(p, move):
+    """This function moves a cursor p (row, column) on pad1 based on a command:
+    A outputs the current character at the position.
+    Arrows (<, >, ^, v) move the cursor left, right, up, or down, respectively
+    """
+
     if move == "A":
         return (p, get_pad1(p))
     if move == "<":
@@ -76,18 +90,27 @@ def apply_pad2(p, move):
 
 
 def solve1(code, pads):
+    """Apply move to p, return the new position and the char at this point"""
     # cost_move, p1, move, out, path
-    # breakpoint()
 
+    logger.debug(f"{code=}, {pads=}")
+    breakpoint()
+
+    # initial state
     start = [0, (3, 2), "A", "", ""]
+    # Store possible states as
+    # [cost, position, move, output, path]
     Q = []
     heapq.heappush(Q, start)
     SEEN = {}
     while Q:
         d, p1, p2, out, path = heapq.heappop(Q)
+        logger.debug(f"{code=}, {d=}, {p1=}, {p2=}, {out=}, {path=}")
         assert p2 in "<>v^A"
+        # If output matches the code, return the cost
         if out == code:
             return d
+        # otherwise generate new states for each valid move
         if not code.startswith(out):
             continue
         if get_pad1(p1) is None:
@@ -115,8 +138,15 @@ DP = {}
 
 
 def cost2(ch, prev_move, pads):
-    breakpoint()
+    """Calculates the cost of pressing a key ch on pad2, given:
+    prev_move: The last key pressed.
+    pads: The number of "pads" (layers of interaction).
 
+    Use BFS on pad2 to find the shortest path from prev_move to ch.
+    Start from prev_move's position and explore all possible moves.
+    If ch is reached, return the path length as the cost.
+    Cache results in DP to avoid recomputation.
+    """
     key = (ch, prev_move, pads)
     if key in DP:
         return DP[key]
@@ -170,8 +200,11 @@ rich.print(Rule("test file"))
 p1 = 0
 p2 = 0
 for line in D.split("\n"):
+    breakpoint()
+
     s1 = solve1(line, 2)
-    s2 = solve1(line, 25)
+    # s2 = solve1(line, 25)
+    s2 = 0
     line_int = ints(line)[0]
     print(line, line_int, s1, s2)
     p1 += s1 * line_int
@@ -181,18 +214,18 @@ for line in D.split("\n"):
 print(f"{p1=}")
 print(f"{p2=}")
 
-rich.print(Rule("my puzzle file"))
+# rich.print(Rule("my puzzle file"))
 
-p1 = 0
-p2 = 0
-for line in DD.split("\n"):
-    s1 = solve1(line, 2)
-    s2 = solve1(line, 25)
-    line_int = ints(line)[0]
-    print(line, line_int, s1, s2)
-    p1 += s1 * line_int
-    p2 += s2 * line_int
+# p1 = 0
+# p2 = 0
+# for line in DD.split("\n"):
+#     s1 = solve1(line, 2)
+#     s2 = solve1(line, 25)
+#     line_int = ints(line)[0]
+#     print(line, line_int, s1, s2)
+#     p1 += s1 * line_int
+#     p2 += s2 * line_int
 
 
-print(f"{p1=}")
-print(f"{p2=}")
+# print(f"{p1=}")
+# print(f"{p2=}")
