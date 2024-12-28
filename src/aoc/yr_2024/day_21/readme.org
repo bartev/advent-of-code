@@ -159,7 +159,7 @@ Find the fewest number of button presses you'll need to perform in order to caus
   The number of shortest paths blows up.
 
 
-*** Take 2 (To be done)
+*** Take 2 (Still too long)
 - Rethink what I'm caching.
 - Instead of putting all the moves together into a single string each time, keep the strings short and as lists.
 - Cache the computation for each item in the list, (and maybe the individual moves too)
@@ -206,3 +206,36 @@ Find the fewest number of button presses you'll need to perform in order to caus
   7. Count the chars per list, and sum
 
 ** Answer
+
+
+I copied the solution in `reddit_2.py`
+
+[[https://github.com/jonathanpaulson/AdventOfCode/blob/master/2024/21.py]]
+
+#+BEGIN_EXAMPLE
+129551515895690
+#+END_EXAMPLE
+
+
+#+begin_example
+  ➜ time ./reddit_2.py
+
+  code, ints from code, part1, part2
+  ─────────────────────────────────────────────────────────── test file ───────────────────────────────────────────────────────────
+  029A 29 68 82050061710
+  980A 980 60 72242026390
+  179A 179 68 81251039228
+  456A 456 64 80786362258
+  379A 379 64 77985628636
+  p1=126384
+  p2=154115708116294
+  ──────────────────────────────────────────────────────── my puzzle file ─────────────────────────────────────────────────────────
+  140A 140 70 87513499934
+  170A 170 72 87513499936
+  169A 169 76 91059074548
+  803A 803 76 93831469526
+  129A 129 74 90594397580
+  p1=105458
+  p2=129551515895690
+  ./reddit_2.py  308.99s user 3.74s system 99% cpu 5:12.78 total
+#+end_example
