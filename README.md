@@ -235,6 +235,38 @@ The result is
 >>> D
 ['brwrr', 'bggr', 'gbbr', 'rrbgbr', 'ubwu', 'bwurrg', 'brgr', 'bbrgwb']
 ```
+
+### Using generators and itertools.product ###
+
+Not sure if this is better, but ChatGPT suggested this change.
+
+original, nested for-loops
+```python
+    def find_char_old(self, char: str = "S"):
+        """Find the Point that contains `char`"""
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if self.get((row, col)) == char:
+                    return (row, col)
+```
+
+after, using `itertools.product` and a generator function
+```python
+    def find_char(self, char: str = "S"):
+        """GPT suggested improvements
+        This is also marginally faster than my original double
+        for-loop method
+        """
+        return next(
+            (
+                (row, col)
+                for row, col in product(range(self.rows), range(self.cols))
+                if self.get((row, col)) == char
+            ),
+            None,
+        )
+```
+
 ## Clojure
 
 
@@ -292,3 +324,17 @@ integers, then one can determine uniquely the remainder of the
 division of n by the product of these integers, under the condition
 that the divisors are pairwise coprime (no two divisors share a common
 factor other than 1)
+
+# Links #
+
+I get ideas from how other people solve their problems.
+
+## Python ##
+
+- derailed-dash <https://github.com/derailed-dash/Advent-of-Code>
+  - [Dazbo's AOC Walkthroughs](https://aoc.just2good.co.uk)
+
+
+## Clojure ##
+
+- Babashka scripts for setup (see above)
