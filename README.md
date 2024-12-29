@@ -324,3 +324,17 @@ integers, then one can determine uniquely the remainder of the
 division of n by the product of these integers, under the condition
 that the divisors are pairwise coprime (no two divisors share a common
 factor other than 1)
+
+# Links #
+
+I get ideas from how other people solve their problems.
+
+## Python ##
+
+- derailed-dash <https://github.com/derailed-dash/Advent-of-Code>
+  - [Dazbo's AOC Walkthroughs](https://aoc.just2good.co.uk)
+
+
+## Clojure ##
+
+- Babashka scripts for setup (see above)
