@@ -333,6 +333,8 @@ I get ideas from how other people solve their problems.
 
 - derailed-dash <https://github.com/derailed-dash/Advent-of-Code>
   - [Dazbo's AOC Walkthroughs](https://aoc.just2good.co.uk)
+  - This link has some great examples of using python, numpy, classes,
+    regex, reading data, etc
 
 
 ## Clojure ##
