@@ -202,5 +202,3 @@ match = INSTR_PATTERN.search(line)
 assert not match, "error message"
 x, y, z, t = map(int, match.groups())
 x, y, z, t
-
-np.logical_not
