@@ -52,5 +52,6 @@ ignore = [
 
 [dependency-groups]
 dev = [
+    "debugpy>=1.8.11",
     "rich>=13.9.4",
 ]
