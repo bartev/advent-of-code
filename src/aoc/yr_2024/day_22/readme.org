@@ -1,0 +1,11 @@
+#+title: problem
+#+author: Bartev
+#+date: 2024-12-22
+* Part 1
+
+** Answer
+
+* Part 2
+
+** Answer
+
